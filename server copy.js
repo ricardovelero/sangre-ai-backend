@@ -1,5 +1,8 @@
 require("dotenv").config();
+const express = require("express");
+const multer = require("multer");
 const fs = require("fs");
+const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const API_KEY = process.env.GEMINI_API_KEY;
@@ -10,27 +13,12 @@ if (API_KEY) {
   console.log("API Key de Google AI no encontrada.");
 }
 
-/**
- * @desc Subir un archivo PDF y enviarlo a Google AI para procesarlo
- * @route POST /api/upload
- * @type Route Handler
- * @access Privado (autenticación requerida)
- */
-exports.upload = async (req, res, next) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No se recibió un archivo PDF." });
-    }
+const app = express();
+const upload = multer({ dest: "/tmp/" });
 
-    console.log(`Archivo recibido: ${req.file.originalname}`);
+app.use(cors());
 
-    const response = await sendToGoogleAi(req.file.path);
-
-    res.json({ message: "PDF procesado con éxito.", text: response });
-  } catch (err) {
-    next(err); // Pasar el error al middleware de manejo de errores
-  }
-};
+app.use(express.json());
 
 // Converts local file information to base64
 function fileToGenerativePart(path, mimeType) {
@@ -41,6 +29,7 @@ function fileToGenerativePart(path, mimeType) {
     },
   };
 }
+
 const sendToGoogleAi = async (pdfPath) => {
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -55,3 +44,30 @@ const sendToGoogleAi = async (pdfPath) => {
 
   return generatedContent.response.text();
 };
+
+app.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No se recibió un archivo PDF." });
+    }
+
+    console.log(`Archivo recibido: ${req.file.originalname}`);
+
+    const response = await sendToGoogleAi(req.file.path);
+
+    res.json({ message: "PDF procesado con éxito.", text: response });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Error procesando el PDF.", error: error.toString() });
+  }
+});
+
+// Manejar rutas no definidas
+app.use((req, res) => {
+  res.status(404).json({ message: "Ruta no encontrada." });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));

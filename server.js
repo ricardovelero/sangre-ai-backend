@@ -1,71 +1,39 @@
 require("dotenv").config();
 const express = require("express");
-const multer = require("multer");
-const fs = require("fs");
 const cors = require("cors");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-const API_KEY = process.env.GEMINI_API_KEY;
-
-if (API_KEY) {
-  console.log("API Key de Google AI cargada.");
-} else {
-  console.log("API Key de Google AI no encontrada.");
-}
+const logger = require("morgan");
+const helmet = require("helmet");
+const routes = require("./routes"); // Archivo centralizado de rutas
+const errorHandler = require("./middleware/errorHandler"); // Manejo de errores
 
 const app = express();
-const upload = multer({ dest: "/tmp/" });
 
+// Configuración de CORS
 app.use(cors());
 
+// Seguridad con Helmet (protege contra ciertas vulnerabilidades)
+app.use(helmet());
+
+// Logger para ver las peticiones en consola
+app.use(logger("dev"));
+
+// Middleware para parsear JSON y URL-encoded
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Converts local file information to base64
-function fileToGenerativePart(path, mimeType) {
-  return {
-    inlineData: {
-      data: Buffer.from(fs.readFileSync(path)).toString("base64"),
-      mimeType,
-    },
-  };
-}
-
-const sendToGoogleAi = async (pdfPath) => {
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const prompt =
-    "Este es un análisis de una analítica de sangre. Por favor, extrae los valores clave y genera un análisis médico detallado. ¿Qué recomendaciones me puedes ofrecer?";
-
-  const imageParts = [fileToGenerativePart(pdfPath, "application/pdf")];
-
-  const generatedContent = await model.generateContent([prompt, ...imageParts]);
-
-  console.log(generatedContent.response.text());
-
-  return generatedContent.response.text();
-};
-
-app.post("/upload", upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No se recibió un archivo PDF." });
-    }
-
-    console.log(`Archivo recibido: ${req.file.originalname}`);
-
-    const response = await sendToGoogleAi(req.file.path);
-
-    res.json({ message: "PDF procesado con éxito.", text: response });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "Error procesando el PDF.", error: error.toString() });
-  }
+// Ruta principal
+app.get("/", (_req, res) => {
+  res.json({ message: "API funcionando correctamente 🚀" });
 });
 
+// Usar rutas centralizadas
+app.use("/api", routes);
+
+// Middleware de manejo de errores (debe ir después de las rutas)
+app.use(errorHandler);
+
 // Manejar rutas no definidas
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({ message: "Ruta no encontrada." });
 });
 
