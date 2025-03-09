@@ -26,6 +26,11 @@ exports.upload = async (req, res, next) => {
 
     const response = await sendToGoogleAi(req.file.path);
 
+    // Eliminar el archivo después de procesarlo
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error("Error eliminando archivo:", err);
+    });
+
     res.json({ message: "PDF procesado con éxito.", text: response });
   } catch (err) {
     next(err); // Pasar el error al middleware de manejo de errores

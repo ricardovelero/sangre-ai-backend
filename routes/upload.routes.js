@@ -8,6 +8,6 @@ const router = express.Router();
 const upload = multer({ dest: "/tmp/" });
 
 // Upload PDF
-router.post("/upload", upload.single("file"), uploads.upload);
+router.post("/", upload.single("file"), uploads.upload);
 
 module.exports = router;
