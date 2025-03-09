@@ -19,7 +19,7 @@ fs.readdirSync(modelsPath)
     db[model.modelName] = model;
   });
 
-console.log("Modelos cargados:", Object.keys(db));
+console.log("📒 Modelos cargados:", Object.keys(db));
 
 // Exportar los modelos y la conexión
 db.mongoose = mongoose;

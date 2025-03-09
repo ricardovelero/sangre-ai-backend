@@ -34,8 +34,8 @@ app.use(errorHandler);
 
 // Manejar rutas no definidas
 app.use((_req, res) => {
-  res.status(404).json({ message: "Ruta no encontrada." });
+  res.status(404).json({ message: "🚫 Ruta no encontrada." });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🎮 Servidor en http://localhost:${PORT}`));
