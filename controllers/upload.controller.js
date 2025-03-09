@@ -19,12 +19,16 @@ if (API_KEY) {
 exports.upload = async (req, res, next) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: "No se recibió un archivo PDF." });
+      return res
+        .status(400)
+        .json({ message: "No se recibió un archivo válido." });
     }
 
-    console.log(`Archivo recibido: ${req.file.originalname}`);
+    console.log(
+      `Archivo recibido: ${req.file.originalname}, mimetype: ${req.file.mimetype}, tamaño: ${req.file.size} bytes`
+    );
 
-    const response = await sendToGoogleAi(req.file.path);
+    const response = await sendToGoogleAi(req.file.path, req.file.mimetype);
 
     // Eliminar el archivo después de procesarlo
     fs.unlink(req.file.path, (err) => {
@@ -46,13 +50,14 @@ function fileToGenerativePart(path, mimeType) {
     },
   };
 }
-const sendToGoogleAi = async (pdfPath) => {
+const sendToGoogleAi = async (filePath, mimeType) => {
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   const prompt =
     "Este es un análisis de una analítica de sangre. Por favor, extrae los valores clave y genera un análisis médico detallado. ¿Qué recomendaciones me puedes ofrecer?";
 
-  const imageParts = [fileToGenerativePart(pdfPath, "application/pdf")];
+  // Convertir el archivo en base64 y enviarlo a Gemini
+  const imageParts = [fileToGenerativePart(filePath, mimeType)];
 
   const generatedContent = await model.generateContent([prompt, ...imageParts]);
 
