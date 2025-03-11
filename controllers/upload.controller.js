@@ -1,6 +1,7 @@
 require("dotenv").config();
 const fs = require("fs");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const prompts = require("../lib/prompts");
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -35,7 +36,7 @@ exports.upload = async (req, res, next) => {
       if (err) console.error("Error eliminando archivo:", err);
     });
 
-    res.json({ message: "PDF procesado con éxito.", text: response });
+    res.json({ message: "Archivo procesado con éxito.", text: response });
   } catch (err) {
     next(err); // Pasar el error al middleware de manejo de errores
   }
@@ -53,8 +54,7 @@ function fileToGenerativePart(path, mimeType) {
 const sendToGoogleAi = async (filePath, mimeType) => {
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const prompt =
-    "Este es un análisis de una analítica de sangre. Por favor, extrae los valores clave y genera un análisis médico detallado. ¿Qué recomendaciones me puedes ofrecer?";
+  const prompt = prompts.promptComplejo;
 
   // Convertir el archivo en base64 y enviarlo a Gemini
   const imageParts = [fileToGenerativePart(filePath, mimeType)];
