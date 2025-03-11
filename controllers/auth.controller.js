@@ -29,7 +29,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id, email }, process.env.TOKEN_KEY, {
-      expiresIn: "15m",
+      expiresIn: "3d",
     });
 
     // Generar Refresh Token (expira en 7 días)
@@ -76,7 +76,7 @@ const register = async (req, res) => {
 
     // Generate Access Token (valid for 15 minutes)
     const token = jwt.sign({ id: user._id, email }, process.env.TOKEN_KEY, {
-      expiresIn: "15m",
+      expiresIn: "3d",
     });
 
     // Generate Refresh Token (valid for 7 days)
@@ -162,7 +162,7 @@ const refreshToken = async (req, res) => {
       const newAccessToken = jwt.sign(
         { id: user._id, email: user.email },
         process.env.TOKEN_KEY,
-        { expiresIn: "15m" }
+        { expiresIn: "3d" }
       );
 
       res.json({ token: newAccessToken });
