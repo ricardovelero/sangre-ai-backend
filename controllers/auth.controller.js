@@ -36,7 +36,7 @@ const login = async (req, res) => {
     const refreshToken = jwt.sign(
       { id: user._id },
       process.env.REFRESH_TOKEN_KEY,
-      { expiresIn: "7d" }
+      { expiresIn: "9d" }
     );
 
     // Guardar Refresh Token en la base de datos
@@ -84,7 +84,7 @@ const register = async (req, res) => {
       { id: user._id },
       process.env.REFRESH_TOKEN_KEY,
       {
-        expiresIn: "7d",
+        expiresIn: "9d",
       }
     );
 
