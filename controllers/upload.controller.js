@@ -20,6 +20,7 @@ if (API_KEY) {
  * @access Privado (autenticación requerida)
  */
 exports.upload = async (req, res, next) => {
+  const userId = req.userData.id;
   try {
     if (!req.file) {
       return res
@@ -42,7 +43,7 @@ exports.upload = async (req, res, next) => {
 
     const json = extractJSON(response);
 
-    const responseDB = await guardarAnalitica(markdown, json);
+    const responseDB = await guardarAnalitica(markdown, json, userId);
 
     if (!responseDB) {
       return res.status(500).json({
@@ -97,11 +98,12 @@ const extractMarkdown = (responseText) => {
     .trim();
 };
 
-const guardarAnalitica = async (markdown, jsonData) => {
+const guardarAnalitica = async (markdown, jsonData, userId) => {
   try {
     const nuevaAnalitica = new Analitica({
       markdown,
       datos_analitica: jsonData.datos_analitica,
+      owner: userId,
     });
 
     const analiticaGuardada = await nuevaAnalitica.save();
