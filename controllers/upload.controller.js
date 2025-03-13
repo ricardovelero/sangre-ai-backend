@@ -2,6 +2,8 @@ require("dotenv").config();
 const fs = require("fs");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const prompts = require("../lib/prompts");
+const db = require("../models");
+const Analitica = db.Analitica;
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -12,7 +14,7 @@ if (API_KEY) {
 }
 
 /**
- * @desc Subir un archivo PDF y enviarlo a Google AI para procesarlo
+ * @desc Subir un archivo PDF, enviarlo a Google AI para procesarlo, y guardar en DB
  * @route POST /api/upload
  * @type Route Handler
  * @access Privado (autenticación requerida)
@@ -36,7 +38,23 @@ exports.upload = async (req, res, next) => {
       if (err) console.error("Error eliminando archivo:", err);
     });
 
-    res.json({ message: "Archivo procesado con éxito.", text: response });
+    const markdown = extractMarkdown(response);
+
+    const json = extractJSON(response);
+
+    const responseDB = await guardarAnalitica(markdown, json);
+
+    if (!responseDB) {
+      return res.status(500).json({
+        message: "❌ Error al guardar la analítica en la base de datos.",
+      });
+    }
+
+    res.json({
+      message: "Archivo procesado y guardado con éxito.",
+      id: responseDB._id, // Retorna el ID del documento guardado en MongoDB
+      text: markdown,
+    });
   } catch (err) {
     next(err); // Pasar el error al middleware de manejo de errores
   }
@@ -64,4 +82,33 @@ const sendToGoogleAi = async (filePath, mimeType) => {
   console.log(generatedContent.response.text());
 
   return generatedContent.response.text();
+};
+
+// Procesar el JSON y Markdown recibido
+const extractJSON = (responseText) => {
+  const jsonMatch = responseText.match(/<<<json\n([\s\S]*?)\n>>>/);
+  return jsonMatch && jsonMatch[1] ? JSON.parse(jsonMatch[1]) : null;
+};
+
+const extractMarkdown = (responseText) => {
+  return responseText
+    .replace(/<<<json\n[\s\S]*?\n>>>/, "")
+    .replace(/^```json\n/, "")
+    .trim();
+};
+
+const guardarAnalitica = async (markdown, jsonData) => {
+  try {
+    const nuevaAnalitica = new Analitica({
+      markdown,
+      datos_analitica: jsonData.datos_analitica,
+    });
+
+    const analiticaGuardada = await nuevaAnalitica.save();
+    console.log("✅ Analítica guardada en MongoDB.");
+    return analiticaGuardada;
+  } catch (error) {
+    console.error("❌ Error al guardar la analítica:", error);
+    return null;
+  }
 };
