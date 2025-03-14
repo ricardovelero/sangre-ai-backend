@@ -32,9 +32,9 @@ router.put("/user", verifyToken, updateUser);
 
 router.put("/user/password", verifyToken, updatePassword);
 
-router.post("/forgot-password", verifyToken, forgotPassword);
+router.post("/forgot-password", forgotPassword);
 
-router.post("/reset-password", verifyToken, resetPassword);
+router.post("/reset-password", resetPassword);
 
 router.delete("/user", verifyToken, deleteUser);
 
