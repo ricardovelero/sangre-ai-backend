@@ -361,10 +361,9 @@ const forgotPassword = async (req, res) => {
         .json({ message: "El correo electrónico es requerido" });
     }
 
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(400).json({ message: "Credenciales incorrectas" });
     }
 
     // Generate a secure token (alternative to JWT)
@@ -389,7 +388,7 @@ const forgotPassword = async (req, res) => {
 
     // Email content
     const emailOptions = {
-      from: "no-reply@example.com",
+      from: "info@solucionesio.es",
       to: user.email,
       subject: "🩸Restablecimiento de contraseña 🅾️",
       textBody: `Restablecimiento de contraseña\n\nHemos recibido una solicitud para restablecer tu contraseña.\n\nSi no hiciste esta solicitud, puedes ignorar este mensaje.\n\nPara cambiar tu contraseña, haz clic en el siguiente enlace:\n${resetUrl}\n\nEste enlace expirará en 15 minutos.\n\nSi tienes problemas, copia y pega el siguiente enlace en tu navegador:\n${resetUrl}\n\nGracias,\nEl equipo de soporte`,
@@ -406,7 +405,9 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    res.json({ message: "Correo de restablecimiento enviado con éxito" });
+    res.json({
+      message: "Correo para restablecer contraseña enviado con éxito",
+    });
   } catch (error) {
     console.error("Error en forgotPassword:", error);
     res.status(500).json({ message: "Error en el servidor", error });
