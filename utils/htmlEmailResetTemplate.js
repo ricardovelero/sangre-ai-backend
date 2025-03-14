@@ -30,10 +30,13 @@ const htmlEmailResetTemplate = `
       color: #555555;
       line-height: 1.5;
     }
+    a {
+      color: #ffffff !important
+    }
     .button {
       display: inline-block;
       background-color: #007bff;
-      color: #ffffff;
+      color: #ffffff !important;
       text-decoration: none;
       padding: 12px 20px;
       font-size: 16px;
@@ -53,7 +56,7 @@ const htmlEmailResetTemplate = `
     <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
     <p>Si no hiciste esta solicitud, puedes ignorar este mensaje.</p>
     <p>Para cambiar tu contraseña, haz clic en el botón de abajo:</p>
-    <a href="{{reset_url}}" class="button">Restablecer contraseña</a>
+    <a class="button" href="{{reset_url}}">Restablecer contraseña</a>
     <p class="footer">Este enlace expirará en 15 minutos.</p>
     <p class="footer">Si tienes problemas, copia y pega el siguiente enlace en tu navegador:</p>
     <p class="footer"><a href="{{reset_url}}">{{reset_url}}</a></p>
