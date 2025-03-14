@@ -53,7 +53,7 @@ exports.upload = async (req, res, next) => {
 
     res.json({
       message: "Archivo procesado y guardado con éxito.",
-      id: responseDB._id, // Retorna el ID del documento guardado en MongoDB
+      _id: responseDB._id, // Retorna el ID del documento guardado en MongoDB
       text: markdown,
     });
   } catch (err) {
