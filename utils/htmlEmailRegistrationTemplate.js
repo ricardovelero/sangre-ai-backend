@@ -1,4 +1,4 @@
-const htmlEmailResetTemplate = `
+const htmlEmailRegistrationTemplate = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,7 +19,7 @@ const htmlEmailResetTemplate = `
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      text-align: left;
     }
     h1 {
       font-size: 22px;
@@ -51,7 +51,7 @@ const htmlEmailResetTemplate = `
     <div class="container">
       <h1>¡Bienvenido a Sangre AI!</h1>
       <p>Estamos encantados de tenerte con nosotros.</p>
-      <p>Empieza ya a subir tus analíticas y recibir tus informes./p>
+      <p>Empieza ya a subir tus analíticas y recibir tus informes.</p>
       <p>Un saludo,</p>
       <p>El equipo de soporte.</p>
     </div>
@@ -59,7 +59,7 @@ const htmlEmailResetTemplate = `
 </html>
 `;
 
-module.exports = { htmlEmailResetTemplate };
+module.exports = htmlEmailRegistrationTemplate;
 
 {
   /* <div class="container">

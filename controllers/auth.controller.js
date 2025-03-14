@@ -61,7 +61,7 @@ const login = async (req, res) => {
  */
 const register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName } = req.body;
 
     if (!email || !password) {
       return res
@@ -73,7 +73,12 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user (if email is unique, otherwise catch error)
-    const user = await User.create({ email, password: hashedPassword });
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName,
+    });
 
     // Generate Access Token (valid for 15 minutes)
     const token = jwt.sign({ id: user._id, email }, process.env.TOKEN_KEY, {
@@ -97,24 +102,23 @@ const register = async (req, res) => {
     // const htmlBody = htmlEmailResetTemplate.replace(/{{reset_url}}/g, resetUrl);
 
     const emailOptions = {
-      body: JSON.stringify({
-        from: "info@solucionesio.es",
-        to: email,
-        subject: "¡Bienvenido a Sangre AI!",
-        textBody:
-          "Gracias por registrarte en Sangre AI. Estamos encantados de tenerte con nosotros.\n\nEmpieza ya a subir tus analíticas y recibir tus informes.\n\nUn saludo,\nEl equipo de soporte.",
-        htmlBody: htmlEmailRegistrationTemplate,
-        messageStream: "outbound",
-      }),
+      from: "info@solucionesio.es",
+      to: email,
+      subject: "¡Bienvenido a Sangre AI!",
+      textBody:
+        "Gracias por registrarte en Sangre AI. Estamos encantados de tenerte con nosotros.\n\nEmpieza ya a subir tus analíticas y recibir tus informes.\n\nUn saludo,\nEl equipo de soporte.",
+      htmlBody: htmlEmailRegistrationTemplate,
+      messageStream: "outbound",
     };
 
     // Send the email
-    const emailResponse = await pmaEmail({
-      body: JSON.stringify(emailOptions),
-    });
-
-    if (emailResponse.statusCode === 500) {
-      console.error(emailResponse.body.message, emailResponse.body.error);
+    const emailResponse = await pmaEmail(emailOptions);
+    if (emailResponse.statusCode !== 200) {
+      console.log(emailResponse);
+      res.status(emailResponse.statusCode).json({
+        message:
+          "Hubo un error enviando el correo. Intente de nuevo o contactar con soporte.",
+      });
     }
 
     res.status(201).json({
@@ -393,7 +397,14 @@ const forgotPassword = async (req, res) => {
     };
 
     // Send the email
-    await pmaEmail({ body: JSON.stringify(emailOptions) });
+    const emailResponse = await pmaEmail(emailOptions);
+    if (emailResponse.statusCode !== 200) {
+      console.log(emailResponse);
+      res.status(emailResponse.statusCode).json({
+        message:
+          "Hubo un error enviando el correo. Intente de nuevo o contactar con soporte.",
+      });
+    }
 
     res.json({ message: "Correo de restablecimiento enviado con éxito" });
   } catch (error) {

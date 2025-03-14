@@ -1,47 +1,27 @@
 /**
  * Sends an email using PostmarkApp API.
  *
- * @param {Object} event - The event object containing the request data.
- * @param {string} event.body - The JSON stringified request body.
+ * @param {Object} emailOptions - An object with the email data.
  * @returns {Promise<Object>} - A response object containing the status code and message.
  *
  * @throws {Error} If there is an issue with the API request or JSON parsing.
  *
  * @example
- * const event = {
- *   body: JSON.stringify({
+ * const emailOptions = {
  *     from: "sender@example.com",
  *     to: "recipient@example.com",
  *     subject: "Hello",
  *     textBody: "This is a plain text email",
  *     htmlBody: "<p>This is an HTML email</p>",
  *     messageStream: "outbound"
- *   })
- * };
+ *  };
  *
- * pmaEmail(event)
+ * pmaEmail(emailOptions)
  *   .then(response => console.log(response))
  *   .catch(error => console.error(error));
  */
-const pmaEmail = async function (event) {
+const pmaEmail = async function (emailOptions) {
   try {
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: "Payload required" }),
-      };
-    }
-
-    let parsedBody;
-    try {
-      parsedBody = JSON.parse(event.body);
-    } catch (error) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: "Invalid JSON payload" }),
-      };
-    }
-
     const {
       from,
       to,
@@ -49,13 +29,22 @@ const pmaEmail = async function (event) {
       textBody,
       htmlBody,
       messageStream = "outbound",
-    } = parsedBody;
+    } = emailOptions;
 
-    // Validate required fields
-    if (!from || !to || !subject || (!textBody && !htmlBody)) {
+    // Validación estricta de los campos
+    if (!from || !to || !subject || (!textBody?.trim() && !htmlBody?.trim())) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: "Missing required fields" }),
+      };
+    }
+
+    // Verificar que la variable de entorno está definida
+    if (!process.env.EMAILS_SECRET) {
+      console.error("EMAILS_SECRET is not set in environment variables.");
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ message: "Email configuration error" }),
       };
     }
 
@@ -67,12 +56,12 @@ const pmaEmail = async function (event) {
       },
       method: "POST",
       body: JSON.stringify({
-        From: from,
-        To: to,
-        Subject: subject,
-        TextBody: textBody,
-        HtmlBody: htmlBody,
-        MessageStream: messageStream,
+        From: from.trim(),
+        To: to.trim(),
+        Subject: subject.trim(),
+        TextBody: textBody?.trim() || "",
+        HtmlBody: htmlBody?.trim() || "",
+        MessageStream: messageStream.trim(),
       }),
     });
 
@@ -81,7 +70,9 @@ const pmaEmail = async function (event) {
       console.error("Postmark Error:", errorData);
       return {
         statusCode: response.status,
-        body: JSON.stringify({ message: errorData.Message }),
+        body: {
+          message: errorData.Message || "Error sending email",
+        },
       };
     }
 

@@ -62,4 +62,4 @@ const htmlEmailResetTemplate = `
 </html>
 `;
 
-module.exports = { htmlEmailResetTemplate };
+module.exports = htmlEmailResetTemplate;
