@@ -1,4 +1,5 @@
 const express = require("express");
+const verifyToken = require("../middleware/auth");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -31,7 +32,7 @@ const upload = multer({
 });
 
 // Route to upload files
-router.post("/", upload.single("file"), async (req, res, next) => {
+router.post("/", verifyToken, upload.single("file"), async (req, res, next) => {
   const { fileTypeFromFile } = await import("file-type");
   try {
     if (!req.file) {
