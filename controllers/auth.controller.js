@@ -5,6 +5,7 @@ const User = db.User;
 const { pmaEmail } = require("../utils/pmaEmail");
 const crypto = require("crypto");
 const htmlEmailResetTemplate = require("../utils/htmlEmailResetTemplate");
+const htmlEmailRegistrationTemplate = require("../utils/htmlEmailRegistrationTemplate");
 /**
  * @desc Inicia sesión y devuelve token + refreshToken
  * @route POST /api/auth/login
@@ -91,6 +92,30 @@ const register = async (req, res) => {
     // Save Refresh Token in the database
     user.refreshToken = refreshToken;
     await user.save();
+
+    // Replace `{{reset_url}}` in email template
+    // const htmlBody = htmlEmailResetTemplate.replace(/{{reset_url}}/g, resetUrl);
+
+    const emailOptions = {
+      body: JSON.stringify({
+        from: "info@solucionesio.es",
+        to: email,
+        subject: "¡Bienvenido a Sangre AI!",
+        textBody:
+          "Gracias por registrarte en Sangre AI. Estamos encantados de tenerte con nosotros.\n\nEmpieza ya a subir tus analíticas y recibir tus informes.\n\nUn saludo,\nEl equipo de soporte.",
+        htmlBody: htmlEmailRegistrationTemplate,
+        messageStream: "outbound",
+      }),
+    };
+
+    // Send the email
+    const emailResponse = await pmaEmail({
+      body: JSON.stringify(emailOptions),
+    });
+
+    if (emailResponse.statusCode === 500) {
+      console.error(emailResponse.body.message, emailResponse.body.error);
+    }
 
     res.status(201).json({
       message: "Usuario registrado con éxito",
