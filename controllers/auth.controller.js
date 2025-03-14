@@ -104,7 +104,7 @@ const register = async (req, res) => {
     const emailOptions = {
       from: "info@solucionesio.es",
       to: email,
-      subject: "¡Bienvenido a Sangre AI!",
+      subject: "🩸¡Bienvenido a Sangre AI! 🆎",
       textBody:
         "Gracias por registrarte en Sangre AI. Estamos encantados de tenerte con nosotros.\n\nEmpieza ya a subir tus analíticas y recibir tus informes.\n\nUn saludo,\nEl equipo de soporte.",
       htmlBody: htmlEmailRegistrationTemplate,
@@ -391,7 +391,7 @@ const forgotPassword = async (req, res) => {
     const emailOptions = {
       from: "no-reply@example.com",
       to: user.email,
-      subject: "Restablecimiento de contraseña",
+      subject: "🩸Restablecimiento de contraseña 🅾️",
       textBody: `Restablecimiento de contraseña\n\nHemos recibido una solicitud para restablecer tu contraseña.\n\nSi no hiciste esta solicitud, puedes ignorar este mensaje.\n\nPara cambiar tu contraseña, haz clic en el siguiente enlace:\n${resetUrl}\n\nEste enlace expirará en 15 minutos.\n\nSi tienes problemas, copia y pega el siguiente enlace en tu navegador:\n${resetUrl}\n\nGracias,\nEl equipo de soporte`,
       htmlBody,
     };
