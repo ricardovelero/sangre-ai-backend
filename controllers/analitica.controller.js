@@ -37,11 +37,7 @@ const getTodasAnaliticas = async (req, res, next) => {
   try {
     const analiticas = await Analitica.find({ owner: userId });
 
-    if (!analiticas) {
-      return res.status(404).json({ message: "No hay analíticas." });
-    }
-
-    res.json(analiticas);
+    res.json(analiticas ?? []);
   } catch (error) {
     next(error);
   }
