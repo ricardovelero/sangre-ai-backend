@@ -49,25 +49,19 @@ const getTodasAnaliticas = async (req, res, next) => {
 };
 
 /**
- * @desc Devuelve la serie blanca de una analitica del usuario
- * @route GET /api/analitica/:id/serie-blanca
+ * @desc Devuelve la serie blanca de todas las analiticas de un usuario
+ * @route GET /api/analiticas/serie-blanca
  * @type Route Handler
  * @access Privado (autenticación requerida)
  */
 const getSerieBlanca = async (req, res, next) => {
-  const { id } = req.params;
-  const ownerId = req.userData.id; // `verifyToken` debe agregar `req.user` con el ID del usuario autenticado
-
-  if (!id) {
-    return res.status(400).json({ message: "Se requiere un ID de analítica" });
-  }
+  const ownerId = req.userData.id;
 
   try {
     const data = await Analitica.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(id), // Filtrar por ID de la analítica
-          owner: new mongoose.Types.ObjectId(ownerId), // Asegurar que pertenece al usuario autenticado
+          owner: new mongoose.Types.ObjectId(ownerId),
         },
       },
       {
