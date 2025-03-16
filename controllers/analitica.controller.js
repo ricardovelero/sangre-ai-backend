@@ -9,13 +9,18 @@ const mongoose = require("mongoose");
  * @access Privado (autenticación requerida)
  */
 const getAnalitica = async (req, res, next) => {
+  const { id } = req.params;
   const userId = req.userData.id;
+
   if (!userId) {
     return res.status(400).json({ error: "Usuario no encontrado" });
   }
-  try {
-    const { id } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "ID de analítica no válido" });
+  }
+
+  try {
     const analitica = await Analitica.findById(id).select("_id markdown");
 
     if (!analitica) {
@@ -50,7 +55,7 @@ const getTodasAnaliticas = async (req, res, next) => {
 
 /**
  * @desc Devuelve la serie blanca de todas las analiticas de un usuario
- * @route GET /api/analiticas/serie-blanca
+ * @route GET /api/analitica/serie-blanca
  * @type Route Handler
  * @access Privado (autenticación requerida)
  */
@@ -61,7 +66,7 @@ const getSerieBlanca = async (req, res, next) => {
     const data = await Analitica.aggregate([
       {
         $match: {
-          owner: new mongoose.Types.ObjectId(ownerId),
+          owner: new mongoose.Types.ObjectId(ownerId), // Asegurar que pertenece al usuario autenticado
         },
       },
       {
