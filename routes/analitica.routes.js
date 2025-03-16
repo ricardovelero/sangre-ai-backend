@@ -8,4 +8,6 @@ router.get("/", verifyToken, analitica.getTodasAnaliticas);
 
 router.get("/:id", verifyToken, analitica.getAnalitica);
 
+router.get("/:id/serie-blanca", verifyToken, analitica.getSerieBlanca);
+
 module.exports = router;
