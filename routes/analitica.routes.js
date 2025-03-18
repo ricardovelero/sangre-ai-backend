@@ -6,7 +6,7 @@ var router = require("express").Router();
 
 router.get("/", verifyToken, analitica.getTodasAnaliticas);
 
-router.get("/serie-blanca", verifyToken, analitica.getSerieBlanca);
+router.get("/series", verifyToken, analitica.getSerie);
 
 router.get("/:id", verifyToken, analitica.getAnalitica);
 

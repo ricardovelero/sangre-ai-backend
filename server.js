@@ -38,4 +38,8 @@ app.use((_req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🎮 Servidor en http://localhost:${PORT}`));
+const server = app.listen(PORT, () =>
+  console.log(`🎮 Servidor en http://localhost:${PORT}`)
+);
+
+module.exports = { app, server };
