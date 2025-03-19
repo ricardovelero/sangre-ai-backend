@@ -44,6 +44,7 @@ const getTodasAnaliticas = async (req, res, next) => {
   if (!userId) {
     return res.status(400).json({ error: "Usuario no encontrado" });
   }
+
   try {
     const analiticas = await Analitica.find({ owner: userId });
 
@@ -53,6 +54,32 @@ const getTodasAnaliticas = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc Eliminar una analítica por id
+ * @route DELETE /api/analitica/:id
+ * @type Route Handler
+ * @access Privado (autenticación requerida)
+ */
+const deleteAnalitica = async (req, res, next) => {
+  const { id } = req.params;
+  const userId = req.userData.id;
+
+  if (!userId) {
+    return res.status(400).json({ error: "Usuario no encontrado" });
+  }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "ID de analítica no válido" });
+  }
+  try {
+    const analitica = await Analitica.findByIdAndDelete(id);
+    if (!analitica) {
+      return res.status(404).json({ message: "Analitica no encontrada." });
+    }
+    res.json({ message: "Analitica eliminada correctamente." });
+  } catch (error) {
+    next(error);
+  }
+};
 /**
  * @desc Devuelve la serie lípidos las analíticas de un usuario
  * @route GET /api/analitica/lipidos
@@ -201,7 +228,14 @@ const getSerie = async (req, res) => {
               $project: {
                 _id: 0,
                 fecha: "$datos_analitica.paciente.fecha_toma_muestra",
-                valores: "$datos_analitica.analitica.bioquimica_clinica",
+                valores: {
+                  colesterol_total:
+                    "$datos_analitica.analitica.bioquimica_clinica.colesterol_total",
+                  HDL: "$datos_analitica.analitica.bioquimica_clinica.HDL",
+                  LDL: "$datos_analitica.analitica.bioquimica_clinica.LDL",
+                  trigliceridos:
+                    "$datos_analitica.analitica.bioquimica_clinica.trigliceridos",
+                },
               },
             },
             {
@@ -244,6 +278,7 @@ const getSerie = async (req, res) => {
 module.exports = {
   getAnalitica,
   getTodasAnaliticas,
+  deleteAnalitica,
   getSerie,
   getLipidos,
 };
