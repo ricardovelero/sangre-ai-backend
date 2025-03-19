@@ -7,12 +7,6 @@ const Analitica = db.Analitica;
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
-if (API_KEY) {
-  console.log("API Key de Google AI cargada.");
-} else {
-  console.log("API Key de Google AI no encontrada.");
-}
-
 /**
  * @desc Subir un archivo PDF, enviarlo a Google AI para procesarlo, y guardar en DB
  * @route POST /api/upload
@@ -101,8 +95,13 @@ const extractMarkdown = (responseText) => {
 const guardarAnalitica = async (markdown, jsonData, userId) => {
   try {
     const nuevaAnalitica = new Analitica({
+      paciente: jsonData.paciente,
+      fecha_toma_muestra: jsonData.fecha_toma_muestra,
+      fecha_informe: jsonData.fecha_informe,
+      laboratorio: jsonData.laboratorio,
+      medico: jsonData.medico,
       markdown,
-      datos_analitica: jsonData.datos_analitica,
+      resultados: jsonData.resultados,
       owner: userId,
     });
 
