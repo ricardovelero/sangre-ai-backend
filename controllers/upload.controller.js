@@ -4,6 +4,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const prompts = require("../lib/prompts");
 const db = require("../models");
 const Analitica = db.Analitica;
+const { normalizeString } = require("../lib/utils");
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -81,13 +82,13 @@ const sendToGoogleAi = async (filePath, mimeType) => {
 
 // Procesar el JSON y Markdown recibido
 const extractJSON = (responseText) => {
-  const jsonMatch = responseText.match(/<<<json\n([\s\S]*?)\n>>>/);
+  const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
   return jsonMatch && jsonMatch[1] ? JSON.parse(jsonMatch[1]) : null;
 };
 
 const extractMarkdown = (responseText) => {
   return responseText
-    .replace(/<<<json\n[\s\S]*?\n>>>/, "")
+    .replace(/```json\n[\s\S]*?\n```/, "")
     .replace(/^```json\n/, "")
     .trim();
 };
@@ -101,7 +102,10 @@ const guardarAnalitica = async (markdown, jsonData, userId) => {
       laboratorio: jsonData.laboratorio,
       medico: jsonData.medico,
       markdown,
-      resultados: jsonData.resultados,
+      resultados: jsonData.resultados.map((resultado) => ({
+        ...resultado,
+        nombre_normalizado: normalizeString(resultado.nombre),
+      })),
       owner: userId,
     });
 

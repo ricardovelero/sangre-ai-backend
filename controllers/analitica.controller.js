@@ -1,7 +1,11 @@
 const db = require("../models");
 const Analitica = db.Analitica;
 const mongoose = require("mongoose");
-
+const {
+  serieBlancaSearchTerms,
+  serieRojaSearchTerms,
+  serieLipidosSearchTerms,
+} = require("../lib/seriesSearchTerms");
 /**
  * @desc Buscar una analítica por id
  * @route GET /api/analitica/:id
@@ -191,34 +195,8 @@ const getSerie = async (req, res) => {
                     as: "item",
                     cond: {
                       $in: [
-                        "$$item.codigo_loinc",
-                        [
-                          "6690-2",
-                          "751-8",
-                          "736-9",
-                          "736-7",
-                          "742-7",
-                          "742-5",
-                          "713-8",
-                          "704-6",
-                          "753-4",
-                          "731-0",
-                          "740-1",
-                          "711-2",
-                          "706-2",
-                          "706-1",
-                          "706-0",
-                          "706-3",
-                          "706-4",
-                          "706-5",
-                          "706-6",
-                          "706-7",
-                          "770-8",
-                          "5905-5",
-                          "26499-4",
-                          "26474-7",
-                          "26484-6",
-                        ],
+                        "$$item.nombre_normalizado",
+                        serieBlancaSearchTerms,
                       ],
                     },
                   },
@@ -245,21 +223,7 @@ const getSerie = async (req, res) => {
                     input: "$resultados",
                     as: "item",
                     cond: {
-                      $in: [
-                        "$$item.codigo_loinc",
-                        [
-                          "789-8",
-                          "718-7",
-                          "4544-3",
-                          "785-6",
-                          "787-2",
-                          "716-1",
-                          "717-9",
-                          "787-2",
-                          "33959-8",
-                          "20571-5",
-                        ],
-                      ],
+                      $in: ["$$item.nombre_normalizado", serieRojaSearchTerms],
                     },
                   },
                 },
@@ -286,19 +250,8 @@ const getSerie = async (req, res) => {
                     as: "item",
                     cond: {
                       $in: [
-                        "$$item.codigo_loinc",
-                        [
-                          "2093-3",
-                          "2085-1",
-                          "2089-9",
-                          "18268-1",
-                          "2571-8",
-                          "56042-2",
-                          "1884-7",
-                          "43380-0",
-                          "30575-9",
-                          "1872-0",
-                        ],
+                        "$$item.nombre_normalizado",
+                        serieLipidosSearchTerms,
                       ],
                     },
                   },
