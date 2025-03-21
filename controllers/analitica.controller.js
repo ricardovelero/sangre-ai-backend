@@ -25,7 +25,7 @@ const getAnalitica = async (req, res, next) => {
     const analitica = await Analitica.findOne({
       _id: id,
       owner: userId,
-    }).select("_id markdown fecha_toma_muestra laboratorio medico");
+    }).select("_id markdown fecha_toma_muestra laboratorio medico paciente");
 
     if (!analitica) {
       return res.status(404).json({ message: "Analitica no encontrada." });
