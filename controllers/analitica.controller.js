@@ -51,15 +51,27 @@ const updateAnalitica = async (req, res, next) => {
     return res.status(400).json({ message: "ID de analítica no válido" });
   }
 
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: "No se proporcionaron datos" });
+  }
+
   try {
     const analitica = await Analitica.findOneAndUpdate(
       { _id: id, owner: userId },
-      req.body,
-      { new: true }
+      {
+        $set: {
+          laboratorio: req.body.laboratorio,
+          medico: req.body.medico,
+          "paciente.nombre": req.body.nombre,
+          "paciente.apellidos": req.body.apellidos,
+          fecha_toma_muestra: req.body.fecha,
+        },
+      },
+      { new: true, runValidators: true }
     );
 
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada." });
+      throw new Error("Analitica no actualizada.");
     }
 
     res.json(analitica);
