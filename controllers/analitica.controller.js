@@ -6,6 +6,7 @@ const {
   serieRojaSearchTerms,
   serieLipidosSearchTerms,
 } = require("../lib/seriesSearchTerms");
+
 /**
  * @desc Buscar una analítica por id
  * @route GET /api/analitica/:id
@@ -16,16 +17,15 @@ const getAnalitica = async (req, res, next) => {
   const { id } = req.params;
   const userId = req.userData.id;
 
-  if (!userId) {
-    return res.status(400).json({ error: "Usuario no encontrado" });
-  }
-
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "ID de analítica no válido" });
   }
 
   try {
-    const analitica = await Analitica.findById(id).select("_id markdown");
+    const analitica = await Analitica.findOne({
+      _id: id,
+      owner: userId,
+    }).select("_id markdown fecha_toma_muestra laboratorio medico");
 
     if (!analitica) {
       return res.status(404).json({ message: "Analitica no encontrada." });
@@ -68,14 +68,14 @@ const deleteAnalitica = async (req, res, next) => {
   const { id } = req.params;
   const userId = req.userData.id;
 
-  if (!userId) {
-    return res.status(400).json({ error: "Usuario no encontrado" });
-  }
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "ID de analítica no válido" });
   }
   try {
-    const analitica = await Analitica.findByIdAndDelete(id);
+    const analitica = await Analitica.findOneAndDelete({
+      _id: id,
+      owner: userId,
+    });
     if (!analitica) {
       return res.status(404).json({ message: "Analitica no encontrada." });
     }
@@ -84,6 +84,7 @@ const deleteAnalitica = async (req, res, next) => {
     next(error);
   }
 };
+
 /**
  * @desc Devuelve la serie lípidos las analíticas de un usuario
  * @route GET /api/analitica/lipidos
@@ -91,13 +92,13 @@ const deleteAnalitica = async (req, res, next) => {
  * @access Privado (autenticación requerida)
  */
 const getLipidos = async (req, res, next) => {
-  const ownerId = req.userData.id;
+  const userId = req.userData.id;
 
   try {
     const data = await Analitica.aggregate([
       {
         $match: {
-          owner: new mongoose.Types.ObjectId(ownerId), // Asegurar que pertenece al usuario autenticado
+          owner: new mongoose.Types.ObjectId(userId), // Asegurar que pertenece al usuario autenticado
         },
       },
       {
@@ -163,121 +164,106 @@ const getLipidos = async (req, res, next) => {
  * // 500 Internal Server Error - Error de conexión con MongoDB:
  * { "error": "Error al obtener la serie lipidos. Inténtelo más tarde." }
  */
-const getSerie = async (req, res) => {
+const getSerie = async (req, res, next) => {
+  const userId = req.userData.id;
+  const { tipo } = req.query;
+
+  if (!tipo) {
+    return res
+      .status(400)
+      .json({ error: "Debe proporcionar un tipo de serie válido" });
+  }
+
+  let datos;
+  let matchStage = {
+    $match: {
+      owner: new mongoose.Types.ObjectId(userId),
+    },
+  };
+
   try {
-    const { tipo } = req.query;
-
-    if (!tipo) {
-      return res
-        .status(400)
-        .json({ error: "Debe proporcionar un tipo de serie válido" });
-    }
-
-    let datos;
-    let matchStage = {
-      $match: {
-        owner: new mongoose.Types.ObjectId(req.userData.id),
-      },
-    };
-
-    try {
-      switch (tipo) {
-        case "serie-blanca":
-          datos = await Analitica.aggregate([
-            matchStage,
-            {
-              $project: {
-                _id: 0,
-                fecha_toma_muestra: 1,
-                resultados: {
-                  $filter: {
-                    input: "$resultados",
-                    as: "item",
-                    cond: {
-                      $in: [
-                        "$$item.nombre_normalizado",
-                        serieBlancaSearchTerms,
-                      ],
-                    },
+    switch (tipo) {
+      case "serie-blanca":
+        datos = await Analitica.aggregate([
+          matchStage,
+          {
+            $project: {
+              _id: 0,
+              fecha_toma_muestra: 1,
+              resultados: {
+                $filter: {
+                  input: "$resultados",
+                  as: "item",
+                  cond: {
+                    $in: ["$$item.nombre_normalizado", serieBlancaSearchTerms],
                   },
                 },
               },
             },
-            {
-              $match: {
-                resultados: { $ne: null, $not: { $size: 0 } },
-              },
+          },
+          {
+            $match: {
+              resultados: { $ne: null, $not: { $size: 0 } },
             },
-            { $sort: { fecha_toma_muestra: 1 } },
-          ]);
-          break;
-        case "serie-roja":
-          datos = await Analitica.aggregate([
-            matchStage,
-            {
-              $project: {
-                _id: 0,
-                fecha_toma_muestra: 1,
-                resultados: {
-                  $filter: {
-                    input: "$resultados",
-                    as: "item",
-                    cond: {
-                      $in: ["$$item.nombre_normalizado", serieRojaSearchTerms],
-                    },
+          },
+          { $sort: { fecha_toma_muestra: 1 } },
+        ]);
+        break;
+      case "serie-roja":
+        datos = await Analitica.aggregate([
+          matchStage,
+          {
+            $project: {
+              _id: 0,
+              fecha_toma_muestra: 1,
+              resultados: {
+                $filter: {
+                  input: "$resultados",
+                  as: "item",
+                  cond: {
+                    $in: ["$$item.nombre_normalizado", serieRojaSearchTerms],
                   },
                 },
               },
             },
-            {
-              $match: {
-                resultados: { $ne: null, $not: { $size: 0 } },
-              },
+          },
+          {
+            $match: {
+              resultados: { $ne: null, $not: { $size: 0 } },
             },
-            { $sort: { fecha_toma_muestra: 1 } },
-          ]);
-          break;
-        case "lipidos":
-          datos = await Analitica.aggregate([
-            matchStage,
-            {
-              $project: {
-                _id: 0,
-                fecha_toma_muestra: 1,
-                resultados: {
-                  $filter: {
-                    input: "$resultados",
-                    as: "item",
-                    cond: {
-                      $in: [
-                        "$$item.nombre_normalizado",
-                        serieLipidosSearchTerms,
-                      ],
-                    },
+          },
+          { $sort: { fecha_toma_muestra: 1 } },
+        ]);
+        break;
+      case "lipidos":
+        datos = await Analitica.aggregate([
+          matchStage,
+          {
+            $project: {
+              _id: 0,
+              fecha_toma_muestra: 1,
+              resultados: {
+                $filter: {
+                  input: "$resultados",
+                  as: "item",
+                  cond: {
+                    $in: ["$$item.nombre_normalizado", serieLipidosSearchTerms],
                   },
                 },
               },
             },
-            {
-              $match: {
-                resultados: { $ne: null, $not: { $size: 0 } },
-              },
+          },
+          {
+            $match: {
+              resultados: { $ne: null, $not: { $size: 0 } },
             },
-            { $sort: { fecha_toma_muestra: 1 } },
-          ]);
-          break;
+          },
+          { $sort: { fecha_toma_muestra: 1 } },
+        ]);
+        break;
 
-        default:
-          return res.status(400).json({ error: "Tipo de serie no válido" });
-      }
-    } catch (error) {
-      console.error("❌ Error en la consulta MongoDB:", error);
-      console.error("Stack trace:", error.stack);
-      return res.status(500).json({
-        error: `Error al obtener la serie ${tipo}. Inténtelo más tarde.`,
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
-      });
+      default:
+        return res.status(400).json({ error: "Tipo de serie no válido" });
     }
 
     // Return empty array if no data found
@@ -285,13 +271,9 @@ const getSerie = async (req, res) => {
 
     res.json(datos);
   } catch (error) {
-    console.error("❌ Error inesperado en el servidor:", error);
-    console.error("Stack trace:", error.stack);
-    res.status(500).json({
-      error: "Error interno del servidor. Inténtelo más tarde.",
-      details:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
+    console.error("❌ Error en la consulta MongoDB Aggregate Pipeline:", error);
+    console.error("El Stack trace:", error.stack);
+    next(error);
   }
 };
 
