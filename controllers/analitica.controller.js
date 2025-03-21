@@ -38,6 +38,37 @@ const getAnalitica = async (req, res, next) => {
 };
 
 /**
+ * @desc Actualizar una analítica por id
+ * @route PUT /api/analitica/:id
+ * @type Route Handler
+ * @access Privado (autenticación requerida)
+ */
+const updateAnalitica = async (req, res, next) => {
+  const { id } = req.params;
+  const userId = req.userData.id;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "ID de analítica no válido" });
+  }
+
+  try {
+    const analitica = await Analitica.findOneAndUpdate(
+      { _id: id, owner: userId },
+      req.body,
+      { new: true }
+    );
+
+    if (!analitica) {
+      return res.status(404).json({ message: "Analitica no encontrada." });
+    }
+
+    res.json(analitica);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * @desc Todas las analíticas para el usuario
  * @route GET /api/analiticas
  * @type Route Handler
@@ -283,4 +314,5 @@ module.exports = {
   deleteAnalitica,
   getSerie,
   getLipidos,
+  updateAnalitica,
 };

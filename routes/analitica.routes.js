@@ -12,6 +12,8 @@ router.get("/lipidos", verifyToken, analitica.getLipidos);
 
 router.get("/:id", verifyToken, analitica.getAnalitica);
 
+router.put("/:id", verifyToken, analitica.updateAnalitica);
+
 router.delete("/:id", verifyToken, analitica.deleteAnalitica);
 
 module.exports = router;
