@@ -27,6 +27,9 @@ const analiticaSchema = new mongoose.Schema(
       type: Array,
       required: true,
     },
+    notas: {
+      type: Array,
+    },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }

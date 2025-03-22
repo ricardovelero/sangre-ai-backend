@@ -25,7 +25,7 @@ const getAnalitica = async (req, res, next) => {
     const analitica = await Analitica.findOne({
       _id: id,
       owner: userId,
-    }).select("_id markdown fecha_toma_muestra laboratorio medico paciente");
+    });
 
     if (!analitica) {
       return res.status(404).json({ message: "Analitica no encontrada." });
@@ -66,12 +66,15 @@ const updateAnalitica = async (req, res, next) => {
           "paciente.apellidos": req.body.apellidos,
           fecha_toma_muestra: req.body.fecha,
         },
+        $push: {
+          notas: { $each: req.body.notas },
+        },
       },
       { new: true, runValidators: true }
     );
 
     if (!analitica) {
-      throw new Error("Analitica no actualizada.");
+      throw new Error("Error al actualizar la analítica.");
     }
 
     res.json(analitica);
