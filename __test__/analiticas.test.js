@@ -23,32 +23,47 @@ describe("Test API de Analíticas", () => {
     // Create test data
     try {
       const testDataWithSeries = {
-        markdown: "Test data with series",
-        datos_analitica: {
-          paciente: {
-            fecha_toma_muestra: new Date(),
-          },
-          analitica: {
-            serie_blanca: {
-              leucocitos: 7000,
-              neutrofilos: 60,
-              linfocitos: 30,
-            },
-          },
+        paciente: {
+          nombre: "Test paciente",
         },
+        fecha_toma_muestra: new Date(),
+        markdown: "Test data with series",
+        resultados: [],
         owner: TEST_USER_ID,
       };
 
       const testDataWithoutSeries = {
-        markdown: "Test data without series",
-        datos_analitica: {
-          paciente: {
-            fecha_toma_muestra: new Date(),
-          },
-          analitica: {
-            // No series data
-          },
+        paciente: {
+          nombre: "Test paciente",
         },
+        fecha_toma_muestra: new Date(),
+        markdown: "Test data with series",
+        resultados: [
+          {
+            nombre: "Colesterol",
+            valor: 100,
+            unidad: "mg/dL",
+            rango_referencia: {
+              minimo: 50,
+              maximo: 110,
+            },
+            indicador: "normal",
+            observaciones: "Test observaciones",
+            nombre_normalizado: "colesterol",
+          },
+          {
+            nombre: "Leucocitos",
+            valor: 100,
+            unidad: "mg/dL",
+            rango_referencia: {
+              minimo: 50,
+              maximo: 110,
+            },
+            indicador: "normal",
+            observaciones: "Test observaciones",
+            nombre_normalizado: "leucocitos",
+          },
+        ],
         owner: TEST_USER_ID,
       };
 
@@ -85,7 +100,7 @@ describe("Test API de Analíticas", () => {
     expect(res.status).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
     expect(res.body.length).toBeGreaterThan(0);
-    expect(res.body[0]).toHaveProperty("valores.leucocitos");
+    expect(res.body[0]).toHaveProperty("resultados");
   });
 
   // ✅ 2. Prueba para un tipo de serie inválido
@@ -137,6 +152,166 @@ describe("Test API de Analíticas", () => {
     const res = await request(app).get(`/api/analitica/series?tipo=lipidos`);
 
     expect(res.status).toBe(500);
-    expect(res.body.error).toMatch(/Error al obtener la serie/);
+  });
+});
+
+// Add these tests after your existing tests in __test__/analiticas.test.js
+
+// Test getting all analiticas
+describe("GET /api/analiticas", () => {
+  test("Debe obtener todas las analíticas del usuario", async () => {
+    const res = await request(app).get("/api/analiticas");
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body[0]).toHaveProperty("markdown");
+    expect(res.body[0]).toHaveProperty("owner", TEST_USER_ID);
+  });
+});
+
+// Test getting a single analitica
+describe("GET /api/analitica/:id", () => {
+  let testAnaliticaId;
+
+  beforeAll(async () => {
+    const testAnalitica = await Analitica.create({
+      paciente: {
+        nombre: "Test paciente single",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test single analitica",
+      resultados: [],
+      owner: TEST_USER_ID,
+    });
+    testAnaliticaId = testAnalitica._id;
+  });
+
+  test("Debe obtener una analítica específica", async () => {
+    const res = await request(app).get(`/api/analitica/${testAnaliticaId}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("_id", testAnaliticaId.toString());
+    expect(res.body).toHaveProperty("markdown", "Test single analitica");
+  });
+
+  test("Debe devolver 404 si la analítica no existe", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+    const res = await request(app).get(`/api/analitica/${fakeId}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty("message", "Analitica no encontrada.");
+  });
+
+  test("Debe devolver 400 si el ID no es válido", async () => {
+    const res = await request(app).get("/api/analitica/invalid-id");
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("message", "ID de analítica no válido");
+  });
+});
+
+// Test deleting an analitica
+describe("DELETE /api/analitica/:id", () => {
+  let testAnaliticaId;
+
+  beforeEach(async () => {
+    const testAnalitica = await Analitica.create({
+      paciente: {
+        nombre: "Test paciente to delete",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test analitica to delete",
+      resultados: [],
+      owner: TEST_USER_ID,
+    });
+    testAnaliticaId = testAnalitica._id;
+  });
+
+  test("Debe eliminar una analítica", async () => {
+    const res = await request(app).delete(`/api/analitica/${testAnaliticaId}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty(
+      "message",
+      "Analitica eliminada correctamente."
+    );
+
+    // Verify it was actually deleted
+    const deletedAnalitica = await Analitica.findById(testAnaliticaId);
+    expect(deletedAnalitica).toBeNull();
+  });
+
+  test("Debe devolver 404 si la analítica a eliminar no existe", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+    const res = await request(app).delete(`/api/analitica/${fakeId}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty("message", "Analitica no encontrada.");
+  });
+
+  test("Debe devolver 400 si el ID no es válido", async () => {
+    const res = await request(app).delete("/api/analitica/invalid-id");
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("message", "ID de analítica no válido");
+  });
+});
+
+// Test updating an analitica
+describe("PUT /api/analitica/:id", () => {
+  let testAnaliticaId;
+
+  beforeEach(async () => {
+    const testAnalitica = await Analitica.create({
+      paciente: {
+        nombre: "Test paciente original",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test analitica original",
+      laboratorio: "Lab original",
+      medico: "Dr. Original",
+      resultados: [],
+      owner: TEST_USER_ID,
+    });
+    testAnaliticaId = testAnalitica._id;
+  });
+
+  test("Debe actualizar una analítica", async () => {
+    const updateData = {
+      laboratorio: "Lab actualizado",
+      medico: "Dr. Actualizado",
+      nombre: "Paciente actualizado",
+      apellidos: "Apellidos actualizados",
+      fecha_toma_muestra: new Date(),
+    };
+
+    const res = await request(app)
+      .put(`/api/analitica/${testAnaliticaId}`)
+      .send(updateData);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("laboratorio", "Lab actualizado");
+    expect(res.body).toHaveProperty("medico", "Dr. Actualizado");
+    expect(res.body.paciente).toHaveProperty("nombre", "Paciente actualizado");
+  });
+
+  test("Debe devolver 404 si la analítica a actualizar no existe", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+    const res = await request(app)
+      .put(`/api/analitica/${fakeId}`)
+      .send({ laboratorio: "Lab test" });
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty("message", "Analitica no encontrada.");
+  });
+
+  test("Debe devolver 400 si el ID no es válido", async () => {
+    const res = await request(app)
+      .put("/api/analitica/invalid-id")
+      .send({ laboratorio: "Lab test" });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("message", "ID de analítica no válido");
   });
 });

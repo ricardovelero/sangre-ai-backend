@@ -1,7 +1,9 @@
-// controllers/notes.controller.js
+const db = require("../models");
+const Analitica = db.Analitica;
+const mongoose = require("mongoose");
 
 // Create a new note
-const createNote = async (req, res) => {
+const createNote = async (req, res, next) => {
   const { analiticaId } = req.params;
   const { content } = req.body;
   const userId = req.userData.id;
@@ -23,12 +25,12 @@ const createNote = async (req, res) => {
     await analitica.save();
     res.status(201).json(analitica.notas[analitica.notas.length - 1]);
   } catch (error) {
-    res.status(500).json({ message: "Error al crear la nota" });
+    next(error);
   }
 };
 
 // Get all notes
-const getNotes = async (req, res) => {
+const getNotes = async (req, res, next) => {
   const { analiticaId } = req.params;
   const userId = req.userData.id;
 
@@ -43,12 +45,12 @@ const getNotes = async (req, res) => {
 
     res.json(analitica.notas);
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener las notas" });
+    next(error);
   }
 };
 
 // Get a specific note
-const getNote = async (req, res) => {
+const getNote = async (req, res, next) => {
   const { analiticaId, noteId } = req.params;
   const userId = req.userData.id;
 
@@ -68,12 +70,12 @@ const getNote = async (req, res) => {
 
     res.json(note);
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener la nota" });
+    next(error);
   }
 };
 
 // Update a note
-const updateNote = async (req, res) => {
+const updateNote = async (req, res, next) => {
   const { analiticaId, noteId } = req.params;
   const { content } = req.body;
   const userId = req.userData.id;
@@ -97,12 +99,12 @@ const updateNote = async (req, res) => {
 
     res.json(note);
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar la nota" });
+    next(error);
   }
 };
 
 // Delete a note
-const deleteNote = async (req, res) => {
+const deleteNote = async (req, res, next) => {
   const { analiticaId, noteId } = req.params;
   const userId = req.userData.id;
 
@@ -120,7 +122,7 @@ const deleteNote = async (req, res) => {
 
     res.json({ message: "Nota eliminada correctamente" });
   } catch (error) {
-    res.status(500).json({ message: "Error al eliminar la nota" });
+    next(error);
   }
 };
 

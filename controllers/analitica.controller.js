@@ -317,8 +317,6 @@ const getSerie = async (req, res, next) => {
 
     res.json(datos);
   } catch (error) {
-    console.error("❌ Error en la consulta MongoDB Aggregate Pipeline:", error);
-    console.error("El Stack trace:", error.stack);
     next(error);
   }
 };
