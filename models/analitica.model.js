@@ -1,5 +1,21 @@
 const mongoose = require("mongoose");
 
+const NotaSchema = new mongoose.Schema({
+  content: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+});
+
 const analiticaSchema = new mongoose.Schema(
   {
     paciente: {
@@ -27,10 +43,14 @@ const analiticaSchema = new mongoose.Schema(
       type: Array,
       required: true,
     },
-    notas: {
-      type: Array,
-    },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Tag",
+      },
+    ],
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    notas: [NotaSchema],
   },
   { timestamps: true }
 );
