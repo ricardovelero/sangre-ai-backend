@@ -44,6 +44,8 @@ const getAnalitica = async (req, res, next) => {
  * @access Privado (autenticación requerida)
  */
 const updateAnalitica = async (req, res, next) => {
+  console.log("Updating analitica");
+
   const { id } = req.params;
   const userId = req.userData.id;
 
@@ -65,9 +67,6 @@ const updateAnalitica = async (req, res, next) => {
           "paciente.nombre": req.body.nombre,
           "paciente.apellidos": req.body.apellidos,
           fecha_toma_muestra: req.body.fecha,
-        },
-        $push: {
-          notas: { $each: req.body.notas },
         },
       },
       { new: true, runValidators: true }
