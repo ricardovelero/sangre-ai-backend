@@ -17,11 +17,6 @@ const tagSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  analitica: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Analitica", // Reference to the Analitica model
-    required: true,
-  },
 });
 
 const Tag = mongoose.model("Tag", tagSchema);
