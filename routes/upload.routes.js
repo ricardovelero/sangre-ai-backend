@@ -8,7 +8,8 @@ const uploads = require("../controllers/upload.controller.js");
 const router = express.Router();
 
 // Ensure the uploads directory exists
-const uploadDir = path.join(__dirname, "/tmp/");
+// old code: const uploadDir = path.join(__dirname, "/tmp/");
+const uploadDir = "/tmp";
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
