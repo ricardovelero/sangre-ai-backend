@@ -8,14 +8,13 @@ const createOrAddTag = async (req, res, next) => {
   const userId = req.userData.id;
 
   try {
-    let tag = await Tag.findOne({ name });
+    // Manually implement findOrCreate logic
+    let tag = await Tag.findOne({ name: name.toLowerCase(), owner: userId });
     if (!tag) {
-      console.log("New tag, lets save it");
-      const newTag = new Tag({
+      tag = await Tag.create({
         name: name.toLowerCase(),
         owner: userId,
       });
-      tag = await newTag.save();
     }
 
     const analitica = await Analitica.findById(analiticaId);
@@ -26,13 +25,13 @@ const createOrAddTag = async (req, res, next) => {
     if (analitica.tags.includes(tag._id)) {
       return res
         .status(201)
-        .json({ message: "Etiqueta ya incluida en analitica", tag: tag });
+        .json({ message: "Etiqueta ya incluida en analitica", tag });
     }
 
     analitica.tags.push(tag._id);
 
     await analitica.save();
-    res.status(201).json({ message: "Etiqueta agregada con éxito.", tag: tag });
+    res.status(201).json({ message: "Etiqueta agregada con éxito.", tag });
   } catch (error) {
     next(error);
   }
