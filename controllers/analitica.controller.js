@@ -25,7 +25,7 @@ const getAnalitica = async (req, res, next) => {
     const analitica = await Analitica.findOne({
       _id: id,
       owner: userId,
-    });
+    }).populate("tags"); // Fetch associated tags
 
     if (!analitica) {
       return res.status(404).json({ message: "Analitica no encontrada." });
