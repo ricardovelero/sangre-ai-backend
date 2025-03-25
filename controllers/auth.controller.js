@@ -1,7 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require("../models");
-const User = db.User;
+const User = require("../models/auth.model");
 const { pmaEmail } = require("../utils/pmaEmail");
 const crypto = require("crypto");
 const htmlEmailResetTemplate = require("../utils/htmlEmailResetTemplate");
