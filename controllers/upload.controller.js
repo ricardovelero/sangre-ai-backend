@@ -4,7 +4,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const prompts = require("../lib/prompts");
 const db = require("../models");
 const Analitica = db.Analitica;
-const { normalizeString } = require("../lib/utils");
+const { normalizeString, toTitleCase } = require("../lib/utils");
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -99,8 +99,8 @@ const guardarAnalitica = async (markdown, jsonData, userId) => {
       paciente: jsonData.paciente,
       fecha_toma_muestra: jsonData.fecha_toma_muestra,
       fecha_informe: jsonData.fecha_informe,
-      laboratorio: jsonData.laboratorio,
-      medico: jsonData.medico,
+      laboratorio: toTitleCase(jsonData.laboratorio),
+      medico: toTitleCase(jsonData.medico),
       markdown,
       resultados: jsonData.resultados.map((resultado) => ({
         ...resultado,
