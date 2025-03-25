@@ -2,37 +2,39 @@
 const Tag = require("../models/tag.model");
 const Analitica = require("../models/analitica.model");
 
-// Create a new tag
-const createTag = async (req, res) => {
-  const { name, description } = req.body;
+// Create a new tag or add an existing one to an Analitica
+const createOrAddTag = async (req, res, next) => {
+  const { name, analiticaId } = req.body;
   const userId = req.userData.id;
 
   try {
-    // Check if tag already exists for this user
-    const existingTag = await Tag.findOne({
-      name: name.toLowerCase(),
-      owner: userId,
-    });
-
-    if (existingTag) {
-      return res.status(400).json({
-        message: "Ya existe una etiqueta con este nombre",
+    let tag = await Tag.findOne({ name });
+    if (!tag) {
+      console.log("New tag, lets save it");
+      const newTag = new Tag({
+        name: name.toLowerCase(),
+        owner: userId,
       });
+      tag = await newTag.save();
     }
 
-    const tag = new Tag({
-      name: name.toLowerCase(),
-      description,
-      owner: userId,
-    });
+    const analitica = await Analitica.findById(analiticaId);
+    if (!analitica) {
+      return res.status(404).json({ message: "Analitica not found" });
+    }
 
-    await tag.save();
-    res.status(201).json(tag);
+    if (analitica.tags.includes(tag._id)) {
+      return res
+        .status(201)
+        .json({ message: "Etiqueta ya incluida en analitica", tag: tag });
+    }
+
+    analitica.tags.push(tag._id);
+
+    await analitica.save();
+    res.status(201).json({ message: "Etiqueta agregada con éxito.", tag: tag });
   } catch (error) {
-    res.status(500).json({
-      message: "Error al crear la etiqueta",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
@@ -87,7 +89,7 @@ const getTag = async (req, res) => {
   }
 };
 
-// Delete a tag
+// Delete a tag from all Analiticas and DB
 const deleteTag = async (req, res) => {
   const { tagId } = req.params;
   const userId = req.userData.id;
@@ -121,9 +123,41 @@ const deleteTag = async (req, res) => {
   }
 };
 
+// Remove a tag from an Analitica
+const removeTag = async (req, res) => {
+  const { tagId, analiticaId } = req.params;
+  const userId = req.userData.id;
+
+  try {
+    const tag = await Tag.findOne({
+      _id: tagId,
+      owner: userId,
+    });
+
+    if (!tag) {
+      return res.status(404).json({
+        message: "Etiqueta no encontrada",
+      });
+    }
+
+    // Remove tag reference from all analytics
+    await Analitica.updateOne({ _id: analiticaId }, { $pull: { tags: tagId } });
+
+    res.json({
+      message: "Etiqueta eliminada de Analitica.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al eliminar la etiqueta",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
-  createTag,
+  createOrAddTag,
   getTags,
   getTag,
+  removeTag,
   deleteTag,
 };
