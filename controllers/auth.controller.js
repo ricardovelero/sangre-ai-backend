@@ -144,7 +144,9 @@ const register = async (req, res) => {
  */
 const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.userData.id).select("_id email");
+    const user = await User.findById(req.userData.id).select(
+      "_id email lastName firstName"
+    );
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
