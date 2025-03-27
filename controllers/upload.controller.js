@@ -34,6 +34,12 @@ exports.upload = async (req, res, next) => {
       if (err) console.error("Error eliminando archivo:", err);
     });
 
+    if (response === "El archivo subido no es una analítica de sangre.") {
+      return res.status(422).json({
+        mensaje: response,
+      });
+    }
+
     const markdown = extractMarkdown(response);
 
     const json = extractJSON(response);
