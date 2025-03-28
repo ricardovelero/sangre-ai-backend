@@ -4,7 +4,6 @@ const tagSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true, // Ensure tag names are unique
     trim: true, // Remove whitespace
     lowercase: true, // Store tags in lowercase
   },
@@ -18,6 +17,9 @@ const tagSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+// Índice compuesto: nombre + dueño debe ser único
+tagSchema.index({ name: 1, owner: 1 }, { unique: true });
 
 const Tag = mongoose.model("Tag", tagSchema);
 module.exports = Tag;
