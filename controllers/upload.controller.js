@@ -73,13 +73,26 @@ function fileToGenerativePart(path, mimeType) {
 }
 const sendToGoogleAi = async (filePath, mimeType) => {
   const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const prompt = prompts.promptComplejo;
+  const generationConfig = {
+    temperature: 0.4,
+    topP: 0.95,
+    topK: 40,
+    maxOutputTokens: 16384,
+    responseMimeType: "text/plain",
+  };
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash",
+    systemInstruction: prompts.systemInstruction,
+    generationConfig,
+  });
 
   // Convertir el archivo en base64 y enviarlo a Gemini
   const imageParts = [fileToGenerativePart(filePath, mimeType)];
 
-  const generatedContent = await model.generateContent([prompt, ...imageParts]);
+  const generatedContent = await model.generateContent([
+    prompts.attiaPrompt,
+    ...imageParts,
+  ]);
 
   console.log(generatedContent.response.text());
 
@@ -88,8 +101,14 @@ const sendToGoogleAi = async (filePath, mimeType) => {
 
 // Procesar el JSON y Markdown recibido
 const extractJSON = (responseText) => {
-  const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
-  return jsonMatch && jsonMatch[1] ? JSON.parse(jsonMatch[1]) : null;
+  try {
+    const match = responseText.match(/```json\s*([\s\S]*?)```/);
+    if (!match) return null;
+    return JSON.parse(match[1].trim());
+  } catch (error) {
+    console.error("❌ Error al parsear JSON:", error.message);
+    return null;
+  }
 };
 
 const extractMarkdown = (responseText) => {
