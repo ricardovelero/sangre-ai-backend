@@ -95,7 +95,9 @@ const getTodasAnaliticas = async (req, res, next) => {
   }
 
   try {
-    const analiticas = await Analitica.find({ owner: userId });
+    const analiticas = await Analitica.find({ owner: userId }).sort({
+      fecha_toma_muestra: -1,
+    });
 
     res.json(analiticas ?? []);
   } catch (error) {
