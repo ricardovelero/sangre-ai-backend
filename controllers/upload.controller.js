@@ -127,6 +127,7 @@ const guardarAnalitica = async (markdown, jsonData, userId) => {
       laboratorio: toTitleCase(jsonData.laboratorio),
       medico: toTitleCase(jsonData.medico),
       markdown,
+      resumen: jsonData.resumen,
       resultados: jsonData.resultados.map((resultado) => ({
         ...resultado,
         nombre_normalizado: normalizeString(resultado.nombre),
