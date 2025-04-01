@@ -35,6 +35,9 @@ const analiticaSchema = new mongoose.Schema(
     medico: {
       type: String,
     },
+    resumen: {
+      type: String,
+    },
     markdown: {
       type: String,
       required: true,
