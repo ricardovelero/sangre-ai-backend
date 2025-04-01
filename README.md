@@ -66,7 +66,7 @@ REFRESH_TOKEN_KEY=tu-token-secreto-super-fresco
 GEMINI_API_KEY=el key de tu cuenta con Google AI Studio
 MONGO_URI=conexion con mongodb+srv
 EMAILS_SECRET=clave secreta en Postmark App
-FRONTEND_URL=http://localhost:5173 o el URL de tu frontend
+FRONTEND_URL=http://localhost:5173 o el URL de tu frontend.
 
 ## Ejecutar Tests
 
