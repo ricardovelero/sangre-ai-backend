@@ -11,7 +11,6 @@ mongoose
     maxPoolSize: 5,
     serverSelectionTimeoutMS: 10000,
     socketTimeoutMS: 20000,
-    keepAlive: true,
   })
   .then(() => console.log("📦 Conectado a MongoDB"))
   .catch((err) => console.error("❌ Error al conectar a MongoDB:", err));
