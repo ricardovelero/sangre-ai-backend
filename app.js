@@ -8,11 +8,7 @@ const errorHandler = require("./middleware/errorHandler"); // Manejo de errores
 const app = express();
 
 // Configuración de CORS
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://sangre-ai-react.vercel.app"],
-  })
-);
+app.use(cors());
 
 // Seguridad con Helmet (protege contra ciertas vulnerabilidades)
 app.use(helmet());
