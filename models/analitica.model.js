@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { normalizeStringAndFixSomeNames, toTitleCase } = require("../lib/utils");
 
 const NotaSchema = new mongoose.Schema({
   content: {
@@ -14,6 +15,14 @@ const NotaSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+});
+
+const ResultadoSchema = new mongoose.Schema({
+  nombre: String,
+  codigo_loinc: String,
+  valor: Number,
+  unidad: String,
+  nombre_normalizado: String,
 });
 
 const analiticaSchema = new mongoose.Schema(
@@ -43,7 +52,7 @@ const analiticaSchema = new mongoose.Schema(
       required: true,
     },
     resultados: {
-      type: Array,
+      type: [ResultadoSchema],
       required: true,
     },
     tags: [
@@ -57,6 +66,33 @@ const analiticaSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+analiticaSchema.pre("save", function (next) {
+  if (this.laboratorio) {
+    this.laboratorio = toTitleCase(this.laboratorio);
+  }
+  if (this.medico) {
+    this.medico = toTitleCase(this.medico);
+  }
+  this.resultados = this.resultados.map((r) => {
+    let valor = r.valor;
+    if (typeof valor === "string") {
+      const normalizado = parseFloat(valor.replace(",", "."));
+      valor = isNaN(normalizado) ? valor : normalizado;
+    }
+
+    const nombre_normalizado = r.nombre
+      ? normalizeStringAndFixSomeNames(r.nombre)
+      : r.nombre_normalizado;
+
+    return {
+      ...r,
+      valor,
+      nombre_normalizado,
+    };
+  });
+  next();
+});
 
 // Crear y exportar el modelo
 const Analitica = mongoose.model("Analitica", analiticaSchema);
