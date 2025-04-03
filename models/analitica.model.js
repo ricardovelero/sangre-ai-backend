@@ -25,10 +25,19 @@ const ResultadoSchema = new mongoose.Schema({
   nombre_normalizado: String,
 });
 
+const PacienteSchema = new mongoose.Schema({
+  dni: String,
+  nombre: String,
+  apellidos: String,
+  fecha_nacimiento: Date,
+  sexo: String,
+  juicio_clinico: String,
+});
+
 const analiticaSchema = new mongoose.Schema(
   {
     paciente: {
-      type: Object,
+      type: PacienteSchema,
       required: true,
     },
     fecha_toma_muestra: {
@@ -73,6 +82,14 @@ analiticaSchema.pre("save", function (next) {
   }
   if (this.medico) {
     this.medico = toTitleCase(this.medico);
+  }
+  if (this.paciente) {
+    if (this.paciente.nombre) {
+      this.paciente.nombre = toTitleCase(this.paciente.nombre);
+    }
+    if (this.paciente.apellidos) {
+      this.paciente.apellidos = toTitleCase(this.paciente.apellidos);
+    }
   }
   this.resultados = this.resultados.map((r) => {
     let valor = r.valor;
