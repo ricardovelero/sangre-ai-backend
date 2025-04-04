@@ -1,10 +1,13 @@
 // __tests__/tags.test.js
 const request = require("supertest");
 const mongoose = require("mongoose");
-const { app, server } = require("../server");
+const { server } = require("../server");
+const { app } = require("../app");
 const Tag = require("../models/tag.model");
 const Analitica = require("../models/analitica.model");
 require("dotenv").config();
+
+console.log("APP:", app);
 
 // Mock auth middleware
 jest.mock("../middleware/auth", () => {

@@ -142,3 +142,8 @@ const guardarAnalitica = async (markdown, jsonData, userId) => {
     return null;
   }
 };
+
+// For testing purposes
+exports.guardarAnalitica = guardarAnalitica;
+exports.extractMarkdown = extractMarkdown;
+exports.extractJSON = extractJSON;

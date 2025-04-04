@@ -1,0 +1,409 @@
+```json
+{
+  "paciente": {
+    "dni": "035610828C",
+    "nombre": "RICARDO ANTONIO",
+    "apellidos": "RODRIGUEZ VINCES",
+    "fecha_nacimiento": "1974-03-28T00:00:00.000Z",
+    "sexo": "Hombre",
+    "juicio_clinico": "DISLIPEMIA CONTROL"
+  },
+  "fecha_toma_muestra": "2018-09-17T09:06:00.000Z",
+  "fecha_informe": "2018-09-17T20:47:00.000Z",
+  "laboratorio": "(002794) Análisis Clínicos - Hospital Costa del Sol",
+  "medico": "Prokopenkova, Albina",
+  "resumen": "El análisis de sangre muestra niveles elevados de bilirrubina total e indirecta, así como de colesterol LDL y creatina quinasa. El resto de los parámetros se encuentran dentro de los rangos de referencia.",
+  "resultados": [
+    {
+      "nombre": "Leucocitos",
+      "codigo_loinc": "6690-2",
+      "valor": "5,08",
+      "unidad": "10^9/L",
+      "nombre_normalizado": "leucocitos"
+    },
+    {
+      "nombre": "Neutrófilos",
+      "codigo_loinc": "770-8",
+      "valor": "2,35",
+      "unidad": "10^9/L",
+      "nombre_normalizado": "neutrofilos"
+    },
+    {
+      "nombre": "Linfocitos",
+      "codigo_loinc": "731-0",
+      "valor": "2,04",
+      "unidad": "10^9/L",
+      "nombre_normalizado": "linfocitos"
+    },
+    {
+      "nombre": "Monocitos",
+      "codigo_loinc": "742-7",
+      "valor": "0,46",
+      "unidad": "10^9/L",
+      "nombre_normalizado": "monocitos"
+    },
+    {
+      "nombre": "Eosinófilos",
+      "codigo_loinc": "713-8",
+      "valor": "0,18",
+      "unidad": "10^9/L",
+      "nombre_normalizado": "eosinofilos"
+    },
+    {
+      "nombre": "Basófilos",
+      "codigo_loinc": "706-2",
+      "valor": "0,05",
+      "unidad": "10^9/L",
+      "nombre_normalizado": "basofilos"
+    },
+    {
+      "nombre": "Hematíes",
+      "codigo_loinc": "789-8",
+      "valor": "4,76",
+      "unidad": "10^12/L",
+      "nombre_normalizado": "hematies"
+    },
+    {
+      "nombre": "Hemoglobina",
+      "codigo_loinc": "718-7",
+      "valor": "14,4",
+      "unidad": "g/dL",
+      "nombre_normalizado": "hemoglobina"
+    },
+    {
+      "nombre": "Hematocrito",
+      "codigo_loinc": "4544-3",
+      "valor": "43,3",
+      "unidad": "%",
+      "nombre_normalizado": "hematocrito"
+    },
+    {
+      "nombre": "Índice de Distribución de Hematíes (IDH)",
+      "codigo_loinc": "788-9",
+      "valor": "13,3",
+      "unidad": "%",
+      "nombre_normalizado": "idh"
+    },
+    {
+      "nombre": "Volumen Corpuscular Medio (VCM)",
+      "codigo_loinc": "787-1",
+      "valor": "91,0",
+      "unidad": "fL",
+      "nombre_normalizado": "vcm"
+    },
+    {
+      "nombre": "Hemoglobina Corpuscular Media (HCM)",
+      "codigo_loinc": "785-5",
+      "valor": "30,3",
+      "unidad": "pg",
+      "nombre_normalizado": "hcm"
+    },
+    {
+      "nombre": "Concentración de Hemoglobina Corpuscular Media (CHCM)",
+      "codigo_loinc": "786-3",
+      "valor": "33,3",
+      "unidad": "g/dL",
+      "nombre_normalizado": "chcm"
+    },
+    {
+      "nombre": "Plaquetas",
+      "codigo_loinc": "777-3",
+      "valor": "187",
+      "unidad": "10^9/L",
+      "nombre_normalizado": "plaquetas"
+    },
+    {
+      "nombre": "Volumen Plaquetario Medio (VPM)",
+      "codigo_loinc": "32623-1",
+      "valor": null,
+      "unidad": "fL",
+      "nombre_normalizado": "volumen plaquetario medio"
+    },
+    {
+      "nombre": "Índice de Distribución Plaquetaria (IDP)",
+      "codigo_loinc": "28542-9",
+      "valor": null,
+      "unidad": "%",
+      "nombre_normalizado": "idp"
+    },
+    {
+      "nombre": "VSG primera hora (Velocidad de sedimentación globular)",
+      "codigo_loinc": "4537-7",
+      "valor": null,
+      "unidad": "mm/h",
+      "nombre_normalizado": "vsg"
+    },
+    {
+      "nombre": "Hemoglobina A1C",
+      "codigo_loinc": "4548-4",
+      "valor": null,
+      "unidad": "%",
+      "nombre_normalizado": "hemoglobina a1c"
+    },
+    {
+      "nombre": "Ferritina",
+      "codigo_loinc": "2276-4",
+      "valor": null,
+      "unidad": "ng/mL",
+      "nombre_normalizado": "ferritina"
+    },
+    {
+      "nombre": "Protrombina (Tiempo de Protrombina)",
+      "codigo_loinc": "5964-2",
+      "valor": null,
+      "unidad": "segundos",
+      "nombre_normalizado": "protrombina"
+    },
+    {
+      "nombre": "Glucosa",
+      "codigo_loinc": "2345-7",
+      "valor": "94",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "glucosa"
+    },
+    {
+      "nombre": "Lipoproteína (a)",
+      "codigo_loinc": "10835-7",
+      "valor": null,
+      "unidad": "mg/dL",
+      "nombre_normalizado": "lipoproteina (a)"
+    },
+    {
+      "nombre": "Creatinina",
+      "codigo_loinc": "2160-0",
+      "valor": "0,97",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "creatinina"
+    },
+    {
+      "nombre": "Ácido Úrico",
+      "codigo_loinc": "3084-1",
+      "valor": null,
+      "unidad": "mg/dL",
+      "nombre_normalizado": "acido urico"
+    },
+    {
+      "nombre": "Colesterol Total",
+      "codigo_loinc": "2093-3",
+      "valor": "210",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "colesterol total"
+    },
+    {
+      "nombre": "Triglicéridos",
+      "codigo_loinc": "2571-8",
+      "valor": "127",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "trigliceridos"
+    },
+    {
+      "nombre": "HDL",
+      "codigo_loinc": "2085-9",
+      "valor": "42",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "hdl"
+    },
+    {
+      "nombre": "LDL",
+      "codigo_loinc": "2089-1",
+      "valor": "143",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "ldl"
+    },
+    {
+      "nombre": "VLDL",
+      "codigo_loinc": "13457-7",
+      "valor": null,
+      "unidad": "mg/dL",
+      "nombre_normalizado": "vldl"
+    },
+    {
+      "nombre": "Apolipoproteína B",
+      "codigo_loinc": "49747-5",
+      "valor": null,
+      "unidad": "mg/dL",
+      "nombre_normalizado": "apo b"
+    },
+    {
+      "nombre": "Proteínas Totales",
+      "codigo_loinc": "2885-2",
+      "valor": null,
+      "unidad": "g/dL",
+      "nombre_normalizado": "proteinas totales"
+    },
+    {
+      "nombre": "Calcio",
+      "codigo_loinc": "17861-6",
+      "valor": null,
+      "unidad": "mg/dL",
+      "nombre_normalizado": "calcio"
+    },
+    {
+      "nombre": "Vitamina D",
+      "codigo_loinc": "49498-9",
+      "valor": null,
+      "unidad": "ng/mL",
+      "nombre_normalizado": "vitamina d"
+    },
+    {
+      "nombre": "PSA (Antígeno Prostático Específico)",
+      "codigo_loinc": "2857-1",
+      "valor": null,
+      "unidad": "ng/mL",
+      "nombre_normalizado": "psa"
+    },
+    {
+      "nombre": "Bilirrubina total",
+      "codigo_loinc": null,
+      "valor": "1,40",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "bilirrubina total"
+    },
+    {
+      "nombre": "Bilirrubina directa",
+      "codigo_loinc": null,
+      "valor": "0,40",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "bilirrubina directa"
+    },
+    {
+      "nombre": "Bilirrubina indirecta",
+      "codigo_loinc": null,
+      "valor": "1,00",
+      "unidad": "mg/dL",
+      "nombre_normalizado": "bilirrubina indirecta"
+    },
+    {
+      "nombre": "Gamma glutamiltransferasa",
+      "codigo_loinc": null,
+      "valor": "17",
+      "unidad": "U/L",
+      "nombre_normalizado": "gamma glutamiltransferasa"
+    },
+    {
+      "nombre": "Aspartato transaminasa",
+      "codigo_loinc": null,
+      "valor": "23",
+      "unidad": "U/L",
+      "nombre_normalizado": "aspartato transaminasa"
+    },
+    {
+      "nombre": "Alanina transaminasa",
+      "codigo_loinc": null,
+      "valor": "16",
+      "unidad": "U/L",
+      "nombre_normalizado": "alanina transaminasa"
+    },
+    {
+      "nombre": "Creatina quinasa",
+      "codigo_loinc": null,
+      "valor": "209",
+      "unidad": "U/L",
+      "nombre_normalizado": "creatina quinasa"
+    },
+    {
+      "nombre": "Fosfatasa alcalina",
+      "codigo_loinc": null,
+      "valor": "60",
+      "unidad": "U/L",
+      "nombre_normalizado": "fosfatasa alcalina"
+    },
+    {
+      "nombre": "Sodio",
+      "codigo_loinc": null,
+      "valor": "138",
+      "unidad": "mEq/L",
+      "nombre_normalizado": "sodio"
+    },
+    {
+      "nombre": "Potasio",
+      "codigo_loinc": null,
+      "valor": "4,6",
+      "unidad": "mEq/L",
+      "nombre_normalizado": "potasio"
+    }
+  ]
+}
+### Análisis Integral de la Analítica Sanguínea
+
+Este análisis se enfoca en la optimización de la salud a largo plazo, basándose en los principios de longevidad y calidad de vida.
+
+#### Perfil Lipídico
+
+*   **Colesterol Total (210 mg/dL):** Ligeramente elevado. Aunque dentro del rango de referencia, para una salud cardiovascular óptima, se busca un valor más cercano a 150-200 mg/dL.
+*   **HDL (42 mg/dL):**  Adecuado, pero podría optimizarse. Un HDL más alto es protector contra enfermedades cardiovasculares.
+*   **LDL (143 mg/dL):** Elevado. Este es un punto de atención importante. Un LDL alto contribuye a la formación de placa en las arterias. El objetivo es mantenerlo por debajo de 100 mg/dL, o incluso más bajo (70 mg/dL) en individuos con alto riesgo cardiovascular.
+*   **Triglicéridos (127 mg/dL):** Dentro del rango normal, pero idealmente deberían estar por debajo de 100 mg/dL.
+
+**Recomendaciones:**
+
+*   **Dieta:** Priorizar grasas saludables (aguacate, aceite de oliva, frutos secos), fibra (verduras, frutas, legumbres) y reducir el consumo de grasas saturadas y azúcares refinados. Considerar una dieta baja en carbohidratos refinados para ayudar a reducir los triglicéridos.
+*   **Ejercicio:** El ejercicio regular, especialmente el entrenamiento de resistencia y el cardiovascular, puede mejorar el perfil lipídico.
+*   **Suplementos:** Considerar la suplementación con Omega-3, que ha demostrado reducir los triglicéridos y mejorar la salud cardiovascular.
+*   **Monitoreo:**  Realizar un seguimiento del perfil lipídico en 3-6 meses para evaluar la respuesta a los cambios en el estilo de vida.
+
+#### Metabolismo de la Glucosa
+
+*   **Glucosa (94 mg/dL):** Dentro del rango normal.
+
+**Recomendaciones:**
+
+*   Mantener una dieta equilibrada y realizar ejercicio regularmente para mantener la sensibilidad a la insulina.
+
+#### Función Renal
+
+*   **Creatinina (0,97 mg/dL):** Dentro del rango normal.
+*   **Filtrado Glomerular Estimado (eGFR):** No se proporciona el valor exacto, pero se indica que está dentro del rango normal y estimado según CKD-EPI.
+
+**Recomendaciones:**
+
+*   Mantener una hidratación adecuada y evitar el consumo excesivo de proteínas para no sobrecargar los riñones.
+
+#### Función Hepática
+
+*   **Bilirrubina Total (1,40 mg/dL):** Ligeramente elevada. Esto podría indicar un problema hepático leve o una obstrucción biliar.
+*   **Bilirrubina Directa (0,40 mg/dL):** Ligeramente elevada. Sugiere un posible problema en la excreción de bilirrubina.
+*   **Bilirrubina Indirecta (1,00 mg/dL):** Ligeramente elevada.
+*   **GGT (17 U/L), AST (23 U/L), ALT (16 U/L):** Dentro de los rangos normales.
+
+**Recomendaciones:**
+
+*   **Investigación Adicional:** Dada la elevación de la bilirrubina, es crucial investigar la causa subyacente. Esto podría requerir pruebas adicionales, como una ecografía abdominal o pruebas más específicas de función hepática.
+*   **Evitar el Alcohol:** Reducir o eliminar el consumo de alcohol para disminuir la carga sobre el hígado.
+*   **Dieta:** Consumir una dieta rica en antioxidantes y nutrientes que apoyen la función hepática.
+
+#### Hematología
+
+*   **Leucocitos (5.08 x 10^9/L), Hematíes (4.76 x 10^12/L), Hemoglobina (14.4 g/dL), Hematocrito (43.3%):** Todos dentro de los rangos normales. Indican una buena salud general en términos de producción de células sanguíneas y capacidad de transporte de oxígeno.
+*   **Plaquetas (187 x 10^9/L):** Dentro del rango normal.
+
+**Recomendaciones:**
+
+*   Mantener una dieta rica en hierro y vitaminas del grupo B para apoyar la producción de células sanguíneas.
+
+#### Inflamación
+
+*   **No hay datos disponibles para VSG, PCR u otros marcadores inflamatorios.**
+
+**Recomendaciones:**
+
+*   Considerar la medición de marcadores inflamatorios como la PCR de alta sensibilidad (hs-PCR) para evaluar el riesgo cardiovascular y la inflamación crónica.
+
+#### Otros
+
+*   **Creatina Quinasa (CK) (209 U/L):** Ligeramente elevada. Esto podría indicar daño muscular reciente debido al ejercicio intenso, inyecciones intramusculares, o en casos raros, problemas cardíacos o musculares.
+
+**Recomendaciones:**
+
+*   **Evaluar el contexto:** Considerar el nivel de actividad física reciente. Si la elevación es persistente y no está relacionada con el ejercicio, se debe investigar más a fondo.
+
+### Resumen y Recomendaciones Generales
+
+El análisis revela un perfil lipídico subóptimo con LDL elevado y bilirrubina ligeramente elevada, lo cual requiere atención. Se recomienda:
+
+1.  **Priorizar cambios en el estilo de vida:** Dieta saludable, ejercicio regular y manejo del estrés.
+2.  **Investigar la causa de la bilirrubina elevada.**
+3.  **Considerar pruebas adicionales:** Marcadores inflamatorios (hs-PCR), pruebas de función hepática más específicas, y seguimiento del perfil lipídico.
+4.  **Consultar con un médico:** Para discutir los resultados y desarrollar un plan de acción personalizado.
+
+Este análisis proporciona una base para optimizar la salud a largo plazo. Al abordar los problemas identificados y adoptar un enfoque proactivo, es posible mejorar significativamente la calidad de vida y la longevidad.
