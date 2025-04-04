@@ -6,8 +6,15 @@ echo "♻️  Iniciando gcloud 'sangre-ai-backend'..."
 set -a
 source .env
 set +a
-docker build -t sangre-ai-backend .
 
+# Construir imagen local
+docker build --platform=linux/amd64 -t sangre-ai-backend .
+
+# Etiquetar y subir a GCR
+docker tag sangre-ai-backend gcr.io/sangre-ai/sangre-ai-backend
+docker push gcr.io/sangre-ai/sangre-ai-backend
+
+# Desplegar en Cloud Run
 gcloud run deploy sangre-ai-backend \
   --image gcr.io/sangre-ai/sangre-ai-backend \
   --platform managed \
