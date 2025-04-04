@@ -20,7 +20,7 @@ const NotaSchema = new mongoose.Schema({
 const ResultadoSchema = new mongoose.Schema({
   nombre: String,
   codigo_loinc: String,
-  valor: Number,
+  valor: mongoose.Schema.Types.Mixed,
   unidad: String,
   nombre_normalizado: String,
 });

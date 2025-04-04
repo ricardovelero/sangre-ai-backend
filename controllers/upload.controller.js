@@ -94,7 +94,7 @@ const sendToGoogleAi = async (filePath, mimeType) => {
     ...imageParts,
   ]);
 
-  console.log(generatedContent.response.text());
+  // console.log(generatedContent.response.text());
 
   return generatedContent.response.text();
 };
@@ -119,6 +119,8 @@ const extractMarkdown = (responseText) => {
 };
 
 const guardarAnalitica = async (markdown, jsonData, userId) => {
+  console.log(jsonData);
+
   try {
     const nuevaAnalitica = new Analitica({
       paciente: jsonData.paciente,
