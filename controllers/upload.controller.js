@@ -118,19 +118,23 @@ const extractMarkdown = (responseText) => {
     .trim();
 };
 
-const guardarAnalitica = async (markdown, jsonData, userId) => {
-  console.log(jsonData);
+const normalizarAnalitica = (jsonData = {}) => ({
+  paciente: jsonData.paciente || { nombre: "Desconocido" },
+  fecha_toma_muestra: jsonData.fecha_toma_muestra || new Date(),
+  fecha_informe: jsonData.fecha_informe || new Date(),
+  laboratorio: jsonData.laboratorio || "No especificado",
+  medico: jsonData.medico || "No especificado",
+  markdown: jsonData.markdown || "Sin informe",
+  resumen: jsonData.resumen || "Sin resumen",
+  resultados: jsonData.resultados || [],
+});
 
+const guardarAnalitica = async (markdown, jsonData, userId) => {
   try {
+    const datosNormalizados = normalizarAnalitica(jsonData);
     const nuevaAnalitica = new Analitica({
-      paciente: jsonData.paciente,
-      fecha_toma_muestra: jsonData.fecha_toma_muestra,
-      fecha_informe: jsonData.fecha_informe,
-      laboratorio: jsonData.laboratorio,
-      medico: jsonData.medico,
+      ...datosNormalizados,
       markdown,
-      resumen: jsonData.resumen,
-      resultados: jsonData.resultados,
       owner: userId,
     });
 
