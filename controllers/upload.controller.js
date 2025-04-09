@@ -16,6 +16,8 @@ const API_KEY = process.env.GEMINI_API_KEY;
  */
 exports.upload = async (req, res, next) => {
   const userId = req.userData.id;
+  const { prompt } = req.query;
+
   try {
     if (!req.file) {
       return res
@@ -27,7 +29,14 @@ exports.upload = async (req, res, next) => {
       `Archivo recibido: ${req.file.originalname}, mimetype: ${req.file.mimetype}, tamaño: ${req.file.size} bytes`
     );
 
-    const response = await sendToGoogleAi(req.file.path, req.file.mimetype);
+    const chosenPrompt =
+      prompt === "jaramillo" ? prompts.jaramilloPrompt : prompts.attiaPrompt;
+
+    const response = await sendToGoogleAi(
+      req.file.path,
+      req.file.mimetype,
+      chosenPrompt
+    );
 
     // Eliminar el archivo después de procesarlo
     fs.unlink(req.file.path, (err) => {
@@ -71,7 +80,7 @@ function fileToGenerativePart(path, mimeType) {
     },
   };
 }
-const sendToGoogleAi = async (filePath, mimeType) => {
+const sendToGoogleAi = async (filePath, mimeType, chosenPrompt) => {
   const genAI = new GoogleGenerativeAI(API_KEY);
   const generationConfig = {
     temperature: 0.4,
@@ -90,11 +99,9 @@ const sendToGoogleAi = async (filePath, mimeType) => {
   const imageParts = [fileToGenerativePart(filePath, mimeType)];
 
   const generatedContent = await model.generateContent([
-    prompts.attiaPrompt,
+    chosenPrompt,
     ...imageParts,
   ]);
-
-  // console.log(generatedContent.response.text());
 
   return generatedContent.response.text();
 };
