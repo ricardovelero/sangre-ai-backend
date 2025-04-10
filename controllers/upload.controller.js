@@ -5,6 +5,7 @@ const prompts = require("../lib/prompts");
 const db = require("../models");
 const Analitica = db.Analitica;
 const { normalizeString, toTitleCase } = require("../lib/utils");
+const calculateAdditionalResults = require("../lib/calculations");
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -120,6 +121,19 @@ const extractMarkdown = (responseText) => {
 
 const normalizarAnalitica = (jsonDataInput) => {
   const jsonData = jsonDataInput || {};
+  const resultadosOriginales = jsonData.resultados || [];
+
+  // Obtén los resultados calculados adicionales
+  const calculatedResults = calculateAdditionalResults(resultadosOriginales);
+
+  // Combina los resultados originales con los calculados
+  const resultadosConCalculado = [
+    ...resultadosOriginales,
+    ...calculatedResults,
+  ];
+
+  console.log(resultadosConCalculado);
+
   return {
     paciente: jsonData.paciente || { nombre: "Desconocido" },
     fecha_toma_muestra: jsonData.fecha_toma_muestra || new Date(),
@@ -128,7 +142,7 @@ const normalizarAnalitica = (jsonDataInput) => {
     medico: jsonData.medico || "No especificado",
     markdown: jsonData.markdown || "Sin informe",
     resumen: jsonData.resumen || "Sin resumen",
-    resultados: jsonData.resultados || [],
+    resultados: resultadosConCalculado || [],
   };
 };
 
@@ -154,3 +168,4 @@ const guardarAnalitica = async (markdown, jsonData, userId) => {
 exports.guardarAnalitica = guardarAnalitica;
 exports.extractMarkdown = extractMarkdown;
 exports.extractJSON = extractJSON;
+exports.normalizarAnalitica = normalizarAnalitica;
