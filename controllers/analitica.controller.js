@@ -73,7 +73,7 @@ const updateAnalitica = async (req, res, next) => {
     );
 
     if (!analitica) {
-      throw new Error("Error al actualizar la analítica.");
+      return res.status(404).json({ message: "Analitica no encontrada." });
     }
 
     res.json(analitica);
