@@ -1,6 +1,6 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
-const { app, server } = require("../server");
+const app = require("../app");
 const Analitica = require("../models/analitica.model");
 require("dotenv").config();
 
@@ -35,7 +35,6 @@ describe("Notes API Endpoints", () => {
   // Clean up after tests
   afterAll(async () => {
     await Analitica.deleteMany({ owner: TEST_USER_ID });
-    await server.close();
     await mongoose.connection.close();
   });
 

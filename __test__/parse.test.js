@@ -16,9 +16,9 @@ describe("Parseo y guardado de analítica", () => {
   });
 
   it("debería parsear y guardar la analítica correctamente desde un mock", async () => {
-    const texto = fs.readFileSync(mockResponseFile, "utf-8");
-
-    console.log(texto.includes("```json")); // ¿true?
+    const texto = fs
+      .readFileSync(mockResponseFile, "utf-8")
+      .replace(/^\uFEFF/, "");
 
     // Usamos las funciones de extracción del controlador
     const {
@@ -28,8 +28,6 @@ describe("Parseo y guardado de analítica", () => {
 
     const markdown = extractMarkdown(texto);
     const json = extractJSON(texto);
-
-    console.log(json);
 
     expect(json).toBeDefined();
     expect(json.resultados).toBeInstanceOf(Array);

@@ -1,13 +1,10 @@
 // __tests__/tags.test.js
 const request = require("supertest");
 const mongoose = require("mongoose");
-const { server } = require("../server");
-const { app } = require("../app");
+const app = require("../app");
 const Tag = require("../models/tag.model");
 const Analitica = require("../models/analitica.model");
 require("dotenv").config();
-
-console.log("APP:", app);
 
 // Mock auth middleware
 jest.mock("../middleware/auth", () => {
@@ -20,46 +17,62 @@ jest.mock("../middleware/auth", () => {
 describe("Tags API Endpoints", () => {
   const TEST_USER_ID = "65f1e8afd91baac7eb38d5cc";
 
-  // Clean up before and after tests
   beforeEach(async () => {
-    await Tag.deleteMany({ owner: TEST_USER_ID });
-    await Analitica.deleteMany({ owner: TEST_USER_ID });
+    // Create a test analitica
+    const testAnalitica = await Analitica.create({
+      owner: TEST_USER_ID,
+      paciente: {
+        nombre: "Test paciente",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test analitica",
+      resultados: [],
+      notas: [], // Start with empty notes array
+    });
+    testAnaliticaId = testAnalitica._id;
   });
 
   afterAll(async () => {
     await Tag.deleteMany({ owner: TEST_USER_ID });
     await Analitica.deleteMany({ owner: TEST_USER_ID });
-    await server.close();
     await mongoose.connection.close();
   });
 
   // Test creating a tag
   describe("POST /api/tags", () => {
+    afterAll(async () => {
+      await Tag.deleteMany({ owner: TEST_USER_ID });
+    });
     test("should create a new tag", async () => {
       const res = await request(app).post("/api/tags").send({
         name: "Test Tag",
+        analiticaId: testAnaliticaId,
       });
 
+      const { tag } = res.body;
+
       expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty("name", "test tag");
-      expect(res.body).toHaveProperty("owner", TEST_USER_ID);
+      expect(tag).toHaveProperty("name", "test tag");
+      expect(tag).toHaveProperty("owner", TEST_USER_ID);
     });
 
     test("should not create duplicate tag for same user", async () => {
       // Create first tag
       await request(app).post("/api/tags").send({
         name: "Test Tag",
+        analiticaId: testAnaliticaId,
       });
 
       // Try to create duplicate
       const res = await request(app).post("/api/tags").send({
         name: "Test Tag",
+        analiticaId: testAnaliticaId,
       });
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(201);
       expect(res.body).toHaveProperty(
         "message",
-        "Ya existe una etiqueta con este nombre"
+        "Etiqueta ya incluida en analitica"
       );
     });
   });
@@ -91,7 +104,7 @@ describe("Tags API Endpoints", () => {
     beforeEach(async () => {
       // Create a test tag and analitica
       const tag = await Tag.create({
-        name: "test tag",
+        name: "tag 3",
         owner: TEST_USER_ID,
       });
       testTagId = tag._id;
@@ -105,6 +118,10 @@ describe("Tags API Endpoints", () => {
         tags: [testTagId],
         fecha_toma_muestra: new Date(),
       });
+    });
+
+    afterEach(async () => {
+      await Tag.deleteMany({ owner: TEST_USER_ID });
     });
 
     test("should get a specific tag and its analytics", async () => {

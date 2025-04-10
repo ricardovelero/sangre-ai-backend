@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
 const request = require("supertest");
-const { app, server } = require("../server");
+const mongoose = require("mongoose");
+const app = require("../app");
 const Analitica = require("../models/analitica.model");
 require("dotenv").config();
 
@@ -16,78 +16,69 @@ jest.mock("../middleware/auth", () => {
   });
 });
 
+beforeAll(async () => {
+  console.log("🚀 Starting tests...");
+
+  // Create test data
+  try {
+    const testDataWithSeries = {
+      paciente: {
+        nombre: "Test paciente",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test data with series",
+      resultados: [],
+      owner: TEST_USER_ID,
+    };
+
+    const testDataWithoutSeries = {
+      paciente: {
+        nombre: "Test paciente",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test data with series",
+      resultados: [
+        {
+          nombre: "Colesterol",
+          valor: 100,
+          unidad: "mg/dL",
+          rango_referencia: {
+            minimo: 50,
+            maximo: 110,
+          },
+          indicador: "normal",
+          observaciones: "Test observaciones",
+          nombre_normalizado: "colesterol",
+        },
+        {
+          nombre: "Leucocitos",
+          valor: 100,
+          unidad: "mg/dL",
+          rango_referencia: {
+            minimo: 50,
+            maximo: 110,
+          },
+          indicador: "normal",
+          observaciones: "Test observaciones",
+          nombre_normalizado: "leucocitos",
+        },
+      ],
+      owner: TEST_USER_ID,
+    };
+
+    await Analitica.create([testDataWithSeries, testDataWithoutSeries]);
+    console.log("✅ Test data created successfully");
+  } catch (error) {
+    console.error("❌ Error creating test data:", error);
+  }
+});
+
+afterAll(async () => {
+  await Analitica.deleteMany({ owner: TEST_USER_ID });
+  await mongoose.connection.close();
+});
+
 describe("Test API de Analíticas", () => {
-  beforeAll(async () => {
-    console.log("🚀 Starting tests...");
-
-    // Create test data
-    try {
-      const testDataWithSeries = {
-        paciente: {
-          nombre: "Test paciente",
-        },
-        fecha_toma_muestra: new Date(),
-        markdown: "Test data with series",
-        resultados: [],
-        owner: TEST_USER_ID,
-      };
-
-      const testDataWithoutSeries = {
-        paciente: {
-          nombre: "Test paciente",
-        },
-        fecha_toma_muestra: new Date(),
-        markdown: "Test data with series",
-        resultados: [
-          {
-            nombre: "Colesterol",
-            valor: 100,
-            unidad: "mg/dL",
-            rango_referencia: {
-              minimo: 50,
-              maximo: 110,
-            },
-            indicador: "normal",
-            observaciones: "Test observaciones",
-            nombre_normalizado: "colesterol",
-          },
-          {
-            nombre: "Leucocitos",
-            valor: 100,
-            unidad: "mg/dL",
-            rango_referencia: {
-              minimo: 50,
-              maximo: 110,
-            },
-            indicador: "normal",
-            observaciones: "Test observaciones",
-            nombre_normalizado: "leucocitos",
-          },
-        ],
-        owner: TEST_USER_ID,
-      };
-
-      await Analitica.create([testDataWithSeries, testDataWithoutSeries]);
-      console.log("✅ Test data created successfully");
-    } catch (error) {
-      console.error("❌ Error creating test data:", error);
-    }
-  });
-
-  afterAll(async () => {
-    try {
-      // Clean up test data
-      await Analitica.deleteMany({ owner: TEST_USER_ID });
-      console.log("✅ Test data cleaned up");
-
-      // Cerrar el servidor Express
-      await new Promise((resolve) => server.close(resolve));
-      console.log("✅ Servidor Express cerrado");
-    } catch (error) {
-      console.error("❌ Error in cleanup:", error);
-    }
-  });
-
   // ✅ 1. Prueba para obtener la serie blanca
   test("Debe obtener la serie blanca", async () => {
     console.log("🔍 Iniciando test de serie blanca...");
@@ -155,12 +146,24 @@ describe("Test API de Analíticas", () => {
   });
 });
 
-// Add these tests after your existing tests in __test__/analiticas.test.js
-
 // Test getting all analiticas
-describe("GET /api/analiticas", () => {
+describe("GET /api/analitica", () => {
+  let testAnaliticaId;
+
+  beforeAll(async () => {
+    const testAnalitica = await Analitica.create({
+      paciente: {
+        nombre: "Test paciente single",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test single analitica",
+      resultados: [],
+      owner: TEST_USER_ID,
+    });
+    testAnaliticaId = testAnalitica._id;
+  });
   test("Debe obtener todas las analíticas del usuario", async () => {
-    const res = await request(app).get("/api/analiticas");
+    const res = await request(app).get("/api/analitica");
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);

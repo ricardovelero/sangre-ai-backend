@@ -1,22 +1,25 @@
 const request = require("supertest");
 const http = require("http");
-const app = require("../app"); // ajusta ruta si es necesario
+const mongoose = require("mongoose");
+const app = require("../app");
 
 describe("Servidor Express", () => {
   let server;
 
   beforeAll((done) => {
     server = http.createServer(app);
-    server.listen(done); // espera a que se levante antes de correr los tests
-  });
-
-  afterAll((done) => {
-    server.close(done); // cierra el servidor cuando terminen los tests
+    server.listen(done); // Espera a que se levante el servidor antes de correr los tests
   });
 
   test("Debería responder en la ruta raíz", async () => {
     const res = await request(server).get("/");
     expect(res.statusCode).toBe(200);
     expect(res.text).toBe('{"message":"API funcionando correctamente 🚀"}');
+  });
+
+  afterAll(async () => {
+    // Cierra el servidor y la conexión a la BD para limpiar los handles abiertos
+    server.close();
+    await mongoose.connection.close();
   });
 });
