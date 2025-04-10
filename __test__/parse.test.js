@@ -1,6 +1,8 @@
 const fs = require("fs");
-const path = require("path");
-const { guardarAnalitica } = require("../controllers/upload.controller"); // asegúrate que esté exportada
+const {
+  guardarAnalitica,
+  normalizarAnalitica,
+} = require("../controllers/upload.controller");
 const { default: mongoose } = require("mongoose");
 
 const mockUserId = "6613e123abcde12345678901"; // un ObjectId de ejemplo válido
@@ -29,8 +31,17 @@ describe("Parseo y guardado de analítica", () => {
     const markdown = extractMarkdown(texto);
     const json = extractJSON(texto);
 
+    const normalizedAnalitica = normalizarAnalitica(json);
+
     expect(json).toBeDefined();
     expect(json.resultados).toBeInstanceOf(Array);
+
+    expect(normalizarAnalitica).toBeDefined();
+    expect(normalizedAnalitica.resultados).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ nombre_normalizado: "colesterol no hdl" }),
+      ])
+    );
 
     const resultado = await guardarAnalitica(markdown, json, mockUserId);
 
