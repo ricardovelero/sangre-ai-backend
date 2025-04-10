@@ -4,8 +4,7 @@ const app = require("../app");
 const Analitica = require("../models/analitica.model");
 require("dotenv").config();
 
-// Use the same user ID that works in Thunder Client
-const TEST_USER_ID = "65f1e8afd91baac7eb38d5cc"; // Replace this with your working user ID
+const TEST_USER_ID = "65f1e8afd91baac7eb38d5cc";
 
 // Mock the auth middleware directly
 jest.mock("../middleware/auth", () => {

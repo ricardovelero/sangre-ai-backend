@@ -132,8 +132,6 @@ const normalizarAnalitica = (jsonDataInput) => {
     ...calculatedResults,
   ];
 
-  console.log(resultadosConCalculado);
-
   return {
     paciente: jsonData.paciente || { nombre: "Desconocido" },
     fecha_toma_muestra: jsonData.fecha_toma_muestra || new Date(),
