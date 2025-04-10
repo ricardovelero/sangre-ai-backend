@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { normalizeStringAndFixSomeNames, toTitleCase } = require("../lib/utils");
+const calculateAdditionalResults = require("../lib/calculations");
 
 const NotaSchema = new mongoose.Schema({
   content: {
@@ -108,6 +109,9 @@ analiticaSchema.pre("save", function (next) {
       nombre_normalizado,
     };
   });
+  // Agrega cálculos adicionales usando calculations.js
+  const additionalResults = calculateAdditionalResults(this.resultados);
+  this.resultados = [...this.resultados, ...additionalResults];
   next();
 });
 
