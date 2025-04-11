@@ -36,10 +36,10 @@ describe("Analitica Model", () => {
       resumen: "Test resumen",
       resultados: [
         {
-          nombre: "Colesterol LDL",
-          valor: "150",
+          nombre: "Colesterol Total",
+          valor: "200",
           unidad: "mg/dL",
-          nombre_normalizado: "ldl",
+          nombre_normalizado: "colesterol total",
         },
         {
           nombre: "HDL",
@@ -59,7 +59,7 @@ describe("Analitica Model", () => {
       (r) => r.nombre_normalizado === "colesterol no hdl"
     );
     expect(calculatedResult).toBeDefined();
-    // Verifica que el valor sea correcto: 150 - 50 = 100
-    expect(calculatedResult.valor).toBe(100);
+    // Verifica que el valor sea correcto: 200 - 50 = 150
+    expect(calculatedResult.valor).toBe(150);
   });
 });
