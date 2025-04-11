@@ -121,17 +121,6 @@ const extractMarkdown = (responseText) => {
 
 const normalizarAnalitica = (jsonDataInput) => {
   const jsonData = jsonDataInput || {};
-  const resultadosOriginales = jsonData.resultados || [];
-
-  // Obtén los resultados calculados adicionales
-  const calculatedResults = calculateAdditionalResults(resultadosOriginales);
-
-  // Combina los resultados originales con los calculados
-  const resultadosConCalculado = [
-    ...resultadosOriginales,
-    ...calculatedResults,
-  ];
-
   return {
     paciente: jsonData.paciente || { nombre: "Desconocido" },
     fecha_toma_muestra: jsonData.fecha_toma_muestra || new Date(),
@@ -140,7 +129,7 @@ const normalizarAnalitica = (jsonDataInput) => {
     medico: jsonData.medico || "No especificado",
     markdown: jsonData.markdown || "Sin informe",
     resumen: jsonData.resumen || "Sin resumen",
-    resultados: resultadosConCalculado || [],
+    resultados: jsonData.resultados || [],
   };
 };
 

@@ -45,7 +45,7 @@ describe("Parseo y guardado de analítica", () => {
     expect(normalizarAnalitica).toBeDefined();
     expect(normalizedAnalitica.resultados).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ nombre_normalizado: "colesterol no hdl" }),
+        expect.objectContaining({ nombre_normalizado: "ldl" }),
       ])
     );
 
