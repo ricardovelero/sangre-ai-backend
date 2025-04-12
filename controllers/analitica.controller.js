@@ -222,6 +222,7 @@ const getSerie = async (req, res, next) => {
   }
 
   let datos;
+  let searchTerms;
   let matchStage = {
     $match: {
       owner: new mongoose.Types.ObjectId(userId),
@@ -231,6 +232,7 @@ const getSerie = async (req, res, next) => {
   try {
     switch (tipo) {
       case "serie-blanca":
+        searchTerms = serieBlancaSearchTerms;
         datos = await Analitica.aggregate([
           matchStage,
           {
@@ -257,6 +259,7 @@ const getSerie = async (req, res, next) => {
         ]);
         break;
       case "serie-roja":
+        searchTerms = serieRojaSearchTerms;
         datos = await Analitica.aggregate([
           matchStage,
           {
@@ -283,6 +286,7 @@ const getSerie = async (req, res, next) => {
         ]);
         break;
       case "lipidos":
+        searchTerms = serieLipidosSearchTerms;
         datos = await Analitica.aggregate([
           matchStage,
           {
@@ -316,7 +320,7 @@ const getSerie = async (req, res, next) => {
     // Return empty array if no data found
     datos = datos || [];
 
-    res.json(datos);
+    res.json({ parameters: searchTerms, results: datos });
   } catch (error) {
     next(error);
   }
