@@ -1,10 +1,10 @@
 const calculateAdditionalResults = require("../lib/calculations");
 
 describe("calculateAdditionalResults", () => {
-  test('debe calcular "Colesterol no HDL" correctamente cuando se proporcionan valores numéricos válidos para "Colesterol LDL" y "HDL"', () => {
+  test('debe calcular "Colesterol no HDL" correctamente cuando se proporcionan valores numéricos válidos para "Colesterol Total" y "HDL"', () => {
     const resultadosOriginales = [
-      { nombre: "Colesterol LDL", valor: "130" },
-      { nombre: "HDL", valor: "50" },
+      { nombre_normalizado: "colesterol total", valor: "200" },
+      { nombre_normalizado: "hdl", valor: "50" },
     ];
 
     const resultadosCalculados =
@@ -13,16 +13,23 @@ describe("calculateAdditionalResults", () => {
     expect(resultadosCalculados).toEqual([
       {
         nombre: "Colesterol no HDL",
-        codigo_loic: "98040-7",
-        valor: 80,
+        codigo_loic: "9840-7",
+        valor: 150,
         unidad: "mg/dL",
         nombre_normalizado: "colesterol no hdl",
+      },
+      {
+        nombre: "Colesterol Total / HDL",
+        codigo_loic: "9833-5",
+        valor: 4,
+        unidad: null,
+        nombre_normalizado: "total/hdl",
       },
     ]);
   });
 
   test("debe devolver un array vacío si falta el resultado de 'Colesterol LDL'", () => {
-    const resultadosOriginales = [{ nombre: "HDL", valor: "50" }];
+    const resultadosOriginales = [{ nombre_normalizado: "hdl", valor: "50" }];
 
     const resultadosCalculados =
       calculateAdditionalResults(resultadosOriginales);
@@ -30,7 +37,9 @@ describe("calculateAdditionalResults", () => {
   });
 
   test("debe devolver un array vacío si falta el resultado de 'HDL'", () => {
-    const resultadosOriginales = [{ nombre: "Colesterol LDL", valor: "130" }];
+    const resultadosOriginales = [
+      { nombre_normalizado: "colesterol total", valor: "130" },
+    ];
 
     const resultadosCalculados =
       calculateAdditionalResults(resultadosOriginales);
@@ -39,8 +48,8 @@ describe("calculateAdditionalResults", () => {
 
   test("no debe calcular si los valores no son números válidos", () => {
     const resultadosOriginales = [
-      { nombre: "Colesterol LDL", valor: "abc" },
-      { nombre: "HDL", valor: "50" },
+      { nombre_normalizado: "colesterol total", valor: "abc" },
+      { nombre_normalizado: "hdl", valor: "50" },
     ];
 
     const resultadosCalculados =

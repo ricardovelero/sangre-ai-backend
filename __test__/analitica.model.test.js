@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const Analitica = require("../models/analitica.model");
-
-const TEST_USER_ID = "65f1e8afd91baac7eb38d5cc";
+const { getMockAnalitica } = require("../__mocks__/analitica.mock");
 
 describe("Analitica Model", () => {
   let mongoServer;
+  let testAnalitica;
+  let savedAnalitica;
 
   beforeAll(async () => {
     // Inicializa una instancia de MongoDB en memoria
@@ -24,42 +25,41 @@ describe("Analitica Model", () => {
     await Analitica.deleteMany({});
   });
 
-  test('debe agregar el resultado "colesterol no hdl" al guardar la analítica cuando se proporcionan LDL y HDL', async () => {
-    // Arrange: crea un documento de analítica con resultados de "Colesterol LDL" y "HDL"
-    const testAnalitica = new Analitica({
-      paciente: { nombre: "Test paciente" },
-      fecha_toma_muestra: new Date(),
-      fecha_informe: new Date(),
-      laboratorio: "Test Lab",
-      medico: "Dr. Test",
-      markdown: "Test markdown",
-      resumen: "Test resumen",
-      resultados: [
-        {
-          nombre: "Colesterol Total",
-          valor: "200",
-          unidad: "mg/dL",
-          nombre_normalizado: "colesterol total",
-        },
-        {
-          nombre: "HDL",
-          valor: "50",
-          unidad: "mg/dL",
-          nombre_normalizado: "hdl",
-        },
-      ],
-      owner: TEST_USER_ID,
-    });
+  beforeEach(async () => {
+    testAnalitica = new Analitica(getMockAnalitica());
+    savedAnalitica = await testAnalitica.save();
+  });
 
-    // Act: guarda el documento y deja que el hook pre‑save haga su trabajo
-    const savedAnalitica = await testAnalitica.save();
-
-    // Assert: se debe haber agregado un resultado cuyo nombre_normalizado sea "colesterol no hdl"
+  test('debe agregar el resultado "colesterol no hdl" al guardar la analítica cuando se proporcionan Colesterol Total y HDL', async () => {
     const calculatedResult = savedAnalitica.resultados.find(
       (r) => r.nombre_normalizado === "colesterol no hdl"
     );
     expect(calculatedResult).toBeDefined();
     // Verifica que el valor sea correcto: 200 - 50 = 150
     expect(calculatedResult.valor).toBe(150);
+  });
+
+  test('debe agregar el resultado "total/hdl" al guardar la analítica cuando se proporcionan Colesterol Total y HDL', async () => {
+    const calculatedResult = savedAnalitica.resultados.find(
+      (r) => r.nombre_normalizado === "total/hdl"
+    );
+    expect(calculatedResult).toBeDefined();
+    expect(calculatedResult.valor).toBe(4);
+  });
+
+  test('debe agregar el resultado "trigliceridos/hdl" al guardar la analítica cuando se proporcionan Trigliceridos y HDL', async () => {
+    const calculatedResult = savedAnalitica.resultados.find(
+      (r) => r.nombre_normalizado === "trigliceridos/hdl"
+    );
+    expect(calculatedResult).toBeDefined();
+    expect(calculatedResult.valor).toBe(2);
+  });
+
+  test('debe agregar el resultado "ldl/hdl" al guardar la analítica cuando se proporcionan LDL y HDL', async () => {
+    const calculatedResult = savedAnalitica.resultados.find(
+      (r) => r.nombre_normalizado === "ldl/hdl"
+    );
+    expect(calculatedResult).toBeDefined();
+    expect(calculatedResult.valor).toBe(3.2);
   });
 });
