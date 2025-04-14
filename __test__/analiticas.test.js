@@ -88,9 +88,9 @@ describe("Test API de Analíticas", () => {
 
     console.log("📡 Respuesta recibida:", JSON.stringify(res.body, null, 2));
     expect(res.status).toBe(200);
-    expect(res.body).toBeInstanceOf(Array);
-    expect(res.body.length).toBeGreaterThan(0);
-    expect(res.body[0]).toHaveProperty("resultados");
+    expect(res.body.results).toBeInstanceOf(Array);
+    expect(res.body.results.length).toBeGreaterThan(0);
+    expect(res.body.results[0]).toHaveProperty("resultados");
   });
 
   // ✅ 2. Prueba para un tipo de serie inválido
@@ -111,8 +111,8 @@ describe("Test API de Analíticas", () => {
     const res = await request(app).get(`/api/analitica/series?tipo=serie-roja`);
 
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body).toHaveLength(0);
+    expect(Array.isArray(res.body.results)).toBe(true);
+    expect(res.body.results).toHaveLength(0);
   });
 
   // ✅ 4. Prueba cuando existe analítica pero no tiene la serie solicitada
@@ -120,8 +120,8 @@ describe("Test API de Analíticas", () => {
     const res = await request(app).get(`/api/analitica/series?tipo=serie-roja`);
 
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body).toHaveLength(0);
+    expect(Array.isArray(res.body.results)).toBe(true);
+    expect(res.body.results).toHaveLength(0);
   });
 
   // ✅ 5. Prueba si falta el parámetro `tipo`
