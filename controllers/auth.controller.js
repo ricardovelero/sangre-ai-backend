@@ -43,10 +43,19 @@ const login = async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.json({ message: "Login exitoso", token, refreshToken, user });
+    // Only return safe user fields
+    const safeUser = {
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      // add other non-sensitive fields as needed
+    };
+
+    res.json({ message: "Login exitoso", token, refreshToken, user: safeUser });
   } catch (error) {
     console.error("Error en login:", error);
-    res.status(500).json({ message: "Error en el servidor", error });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
@@ -67,6 +76,12 @@ const register = async (req, res) => {
         .status(400)
         .json({ message: "Email y contraseña son requeridos" });
     }
+    // Password strength check
+    if (password.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "La contraseña debe tener al menos 8 caracteres" });
+    }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -79,12 +94,12 @@ const register = async (req, res) => {
       lastName,
     });
 
-    // Generate Access Token (valid for 15 minutes)
+    // Generate Access Token (valid for 3 days)
     const token = jwt.sign({ id: user._id, email }, process.env.TOKEN_KEY, {
       expiresIn: "3d",
     });
 
-    // Generate Refresh Token (valid for 7 days)
+    // Generate Refresh Token (valid for 9 days)
     const refreshToken = jwt.sign(
       { id: user._id },
       process.env.REFRESH_TOKEN_KEY,
@@ -96,9 +111,6 @@ const register = async (req, res) => {
     // Save Refresh Token in the database
     user.refreshToken = refreshToken;
     await user.save();
-
-    // Replace `{{reset_url}}` in email template
-    // const htmlBody = htmlEmailResetTemplate.replace(/{{reset_url}}/g, resetUrl);
 
     const emailOptions = {
       from: "info@solucionesio.es",
@@ -120,11 +132,20 @@ const register = async (req, res) => {
       });
     }
 
+    // Only return safe user fields
+    const safeUser = {
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      // add other non-sensitive fields as needed
+    };
+
     res.status(201).json({
       message: "Usuario registrado con éxito",
       token,
       refreshToken,
-      user,
+      user: safeUser,
     });
   } catch (error) {
     console.error("Error en registro:", error);
@@ -134,7 +155,7 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "El usuario ya existe" });
     }
 
-    res.status(500).json({ message: "Error en el servidor", error });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
@@ -155,7 +176,7 @@ const getUser = async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error("Error en getUser:", error);
-    res.status(500).json({ message: "Error en el servidor", error });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
@@ -249,6 +270,9 @@ const updateUser = async (req, res) => {
   try {
     const { email, firstName, lastName, phone } = req.body;
 
+    // Optional: Require re-verification for email change
+    // if (email && email !== req.userData.email) { ... }
+
     // Find user and update fields
     const updatedUser = await User.findByIdAndUpdate(
       req.userData.id,
@@ -263,7 +287,7 @@ const updateUser = async (req, res) => {
     res.json({ message: "Usuario actualizado con éxito", user: updatedUser });
   } catch (error) {
     console.error("Error en updateUser:", error);
-    res.status(500).json({ message: "Error en el servidor", error });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
@@ -282,6 +306,12 @@ const updatePassword = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Ambas contraseñas son requeridas" });
+    }
+    // Password strength check
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        message: "La nueva contraseña debe tener al menos 8 caracteres",
+      });
     }
 
     // Find user
@@ -305,7 +335,7 @@ const updatePassword = async (req, res) => {
     res.json({ message: "Contraseña actualizada con éxito" });
   } catch (error) {
     console.error("Error en updatePassword:", error);
-    res.status(500).json({ message: "Error en el servidor", error });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
@@ -363,8 +393,12 @@ const forgotPassword = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
+    // Always return success message to prevent email enumeration
     if (!user) {
-      return res.status(400).json({ message: "Credenciales incorrectas" });
+      return res.json({
+        message:
+          "Si el correo existe, se ha enviado un enlace para restablecer la contraseña",
+      });
     }
 
     // Generate a secure token (alternative to JWT)
@@ -407,11 +441,12 @@ const forgotPassword = async (req, res) => {
     }
 
     res.json({
-      message: "Correo para restablecer contraseña enviado con éxito",
+      message:
+        "Si el correo existe, se ha enviado un enlace para restablecer la contraseña",
     });
   } catch (error) {
     console.error("Error en forgotPassword:", error);
-    res.status(500).json({ message: "Error en el servidor", error });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
@@ -430,6 +465,12 @@ const resetPassword = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Token y nueva contraseña son requeridos" });
+    }
+    // Password strength check
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        message: "La nueva contraseña debe tener al menos 8 caracteres",
+      });
     }
 
     // Hash the token (since we stored a hashed version in the DB)
@@ -457,7 +498,7 @@ const resetPassword = async (req, res) => {
     res.json({ message: "Contraseña restablecida con éxito" });
   } catch (error) {
     console.error("Error en resetPassword:", error);
-    res.status(500).json({ message: "Error en el servidor", error });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
