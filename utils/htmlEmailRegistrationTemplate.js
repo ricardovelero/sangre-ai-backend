@@ -52,6 +52,7 @@ const htmlEmailRegistrationTemplate = `
       <h1>¡Bienvenido a Sangre AI!</h1>
       <p>Estamos encantados de tenerte con nosotros.</p>
       <p>Empieza ya a subir tus analíticas y recibir tus informes.</p>
+      <a href="https://sangreai.com" class="button">Ir a Sangre AI</a>
       <p>Un saludo,</p>
       <p>El equipo de soporte.</p>
     </div>
@@ -60,15 +61,3 @@ const htmlEmailRegistrationTemplate = `
 `;
 
 module.exports = htmlEmailRegistrationTemplate;
-
-{
-  /* <div class="container">
-<h1>¡Bienvenido a Sangre AI!</h1>
-<p>Estamos encantados de tenerte con nosotros.</p>
-<p>Para comenzar a explorar todas las funcionalidades, activa tu cuenta haciendo clic en el botón de abajo:</p>
-<a href="{{activation_url}}" class="button">Activar cuenta</a>
-<p class="footer">Este enlace expirará en 24 horas.</p>
-<p class="footer">Si tienes problemas, copia y pega el siguiente enlace en tu navegador:</p>
-<p class="footer"><a href="{{activation_url}}">{{activation_url}}</a></p>
-</div> */
-}
