@@ -52,7 +52,7 @@ const htmlEmailRegistrationTemplate = `
       <h1>¡Bienvenido a Sangre AI!</h1>
       <p>Estamos encantados de tenerte con nosotros.</p>
       <p>Empieza ya a subir tus analíticas y recibir tus informes.</p>
-      <a href="https://sangreai.com" class="button">Ir a Sangre AI</a>
+      <a href="${process.env.FRONTEND_URL}" class="button">Ir a Sangre AI</a>
       <p>Un saludo,</p>
       <p>El equipo de soporte.</p>
     </div>
