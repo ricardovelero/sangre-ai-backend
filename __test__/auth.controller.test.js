@@ -1,10 +1,18 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
-const app = require("../app"); // Adjust if your Express app is elsewhere
+const { MongoMemoryServer } = require("mongodb-memory-server");
+const app = require("../app");
 const User = require("../models/auth.model");
 
+// Mock the mailer module before requiring the app
+jest.mock("../utils/pmaEmail", () => ({
+  pmaEmail: jest.fn().mockResolvedValue({
+    statusCode: 200,
+    body: JSON.stringify({ message: "Mock email sent" }),
+  }),
+}));
+
 describe("Auth Controller", () => {
-  let server;
   let testUser = {
     email: "testuser@example.com",
     password: "TestPass123!",
@@ -12,14 +20,17 @@ describe("Auth Controller", () => {
     lastName: "User",
   };
   let tokens = {};
+  let mongoServer;
 
   beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
     await User.deleteMany({});
   });
 
   afterAll(async () => {
     await User.deleteMany({});
-    await mongoose.connection.close();
+    await mongoose.disconnect();
+    await mongoServer.stop();
   });
 
   test("Register a new user", async () => {
