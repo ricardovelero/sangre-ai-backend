@@ -65,6 +65,15 @@ describe("Auth Controller", () => {
     expect(res.body.email).toBe(testUser.email);
   });
 
+  test("Refresh token", async () => {
+    const res = await request(app)
+      .post("/api/auth/refresh")
+      .send({ refreshToken: tokens.refreshToken })
+      .expect(200);
+
+    expect(res.body).toHaveProperty("token");
+  });
+
   test("Update user password", async () => {
     const res = await request(app)
       .put("/api/auth/user/password")
@@ -92,15 +101,6 @@ describe("Auth Controller", () => {
       .expect(200);
 
     expect(res.body.message).toMatch(/enlace para restablecer la contraseña/);
-  });
-
-  test("Refresh token", async () => {
-    const res = await request(app)
-      .post("/api/auth/refresh")
-      .send({ refreshToken: tokens.refreshToken })
-      .expect(200);
-
-    expect(res.body).toHaveProperty("token");
   });
 
   test("Logout", async () => {

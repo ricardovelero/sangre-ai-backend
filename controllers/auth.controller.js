@@ -2,9 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/auth.model");
 const { pmaEmail } = require("../utils/pmaEmail");
-const crypto = require("crypto");
-const htmlEmailResetTemplate = require("../utils/htmlEmailResetTemplate");
 const htmlEmailRegistrationTemplate = require("../utils/htmlEmailRegistrationTemplate");
+
 /**
  * @desc Inicia sesión y devuelve token + refreshToken
  * @route POST /api/auth/login
@@ -160,27 +159,6 @@ async function register(req, res) {
 }
 
 /**
- * @desc Obtener los datos del usuario autenticado
- * @route GET /api/auth/user
- */
-const getUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.userData.id).select(
-      "_id email lastName firstName"
-    );
-
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    res.json(user);
-  } catch (error) {
-    console.error("Error en getUser:", error);
-    res.status(500).json({ message: "Error en el servidor" });
-  }
-};
-
-/**
  * @desc Refresca el Access Token usando el Refresh Token
  * @route POST /api/auth/refresh
  * @param {string} req.body.refreshToken - The user's refresh
@@ -189,35 +167,39 @@ const getUser = async (req, res) => {
  */
 const refreshToken = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
+    const { refreshToken: refreshTokenValue } = req.body;
+    if (!refreshTokenValue) {
       return res.status(403).json({ message: "Refresh Token es requerido" });
     }
 
     // Buscar usuario por Refresh Token (Mongoose syntax)
-    const user = await User.findOne({ refreshToken });
+    const user = await User.findOne({ refreshToken: refreshTokenValue });
 
     if (!user) {
       return res.status(403).json({ message: "Refresh Token inválido" });
     }
 
     // Verificar si el Refresh Token es válido
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY, (err, decoded) => {
-      if (err) {
-        return res
-          .status(403)
-          .json({ message: "Refresh Token expirado o inválido" });
+    jwt.verify(
+      refreshTokenValue,
+      process.env.REFRESH_TOKEN_KEY,
+      (err, _decoded) => {
+        if (err) {
+          return res
+            .status(403)
+            .json({ message: "Refresh Token expirado o inválido" });
+        }
+
+        // Generar un nuevo Access Token
+        const newAccessToken = jwt.sign(
+          { id: user._id, email: user.email },
+          process.env.TOKEN_KEY,
+          { expiresIn: "3d" }
+        );
+
+        res.json({ token: newAccessToken });
       }
-
-      // Generar un nuevo Access Token
-      const newAccessToken = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.TOKEN_KEY,
-        { expiresIn: "3d" }
-      );
-
-      res.json({ token: newAccessToken });
-    });
+    );
   } catch (err) {
     console.error("Error en refreshToken:", err);
     res.status(500).json({ message: "Error en el servidor" });
@@ -257,109 +239,6 @@ const logout = async (req, res) => {
 };
 
 /**
- * @desc Actualiza infroamción del Usuario.
- * @route PUT /api/auth/user
- * @param {string} req.body.email - The user's email
- * @param {string} req.body.firstName - The user's first name
- * @param {string} req.body.lastName - The user's last name
- * @returns {Promise<Object>} - A response object containing the status code and message
- * @throws {Error} If there is an issue with the API request or JSON parsing
- */
-
-const updateUser = async (req, res) => {
-  try {
-    const { email, firstName, lastName, phone } = req.body;
-
-    // Optional: Require re-verification for email change
-    // if (email && email !== req.userData.email) { ... }
-
-    // Find user and update fields
-    const updatedUser = await User.findByIdAndUpdate(
-      req.userData.id,
-      { email, firstName, lastName, phone },
-      { new: true, runValidators: true } // Returns updated user and validates input
-    ).select("-password -refreshToken"); // Exclude password & refresh token from response
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    res.json({ message: "Usuario actualizado con éxito", user: updatedUser });
-  } catch (error) {
-    console.error("Error en updateUser:", error);
-    res.status(500).json({ message: "Error en el servidor" });
-  }
-};
-
-/**
- * @desc Cambia contraseña de usuario
- * @route PUT /api/auth/user/password
- * @param {string} req.body.currentPassword - The user's current password
- * @param {string} req.body.newPassword - The user's new password to update
- * @returns {Promise<Object>} - A response object containing the status code and message
- * @throws {Error} If there is an issue with the API request or JSON parsing
- */
-const updatePassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({ message: "Ambas contraseñas son requeridas" });
-    }
-    // Password strength check
-    if (newPassword.length < 8) {
-      return res.status(400).json({
-        message: "La nueva contraseña debe tener al menos 8 caracteres",
-      });
-    }
-
-    // Find user
-    const user = await User.findById(req.userData.id);
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    // Verify current password
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-      return res
-        .status(401)
-        .json({ message: "La contraseña actual es incorrecta" });
-    }
-
-    // Hash and update password
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
-
-    res.json({ message: "Contraseña actualizada con éxito" });
-  } catch (error) {
-    console.error("Error en updatePassword:", error);
-    res.status(500).json({ message: "Error en el servidor" });
-  }
-};
-
-/**
- * @desc Borra el usuario para siempre
- * @route DELETE /api/auth/user
- * @param {string} req.userData.id - The user ID from the JWT
- * @returns {Promise<Object>} - A response object containing the status code and message
- * @throws {Error} If there is an issue with the API request or JSON parsing
- */
-const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.userData.id);
-    if (!user)
-      return res.status(404).json({ message: "Usuario no encontrado" });
-
-    res.json({ message: "Cuenta eliminada exitosamente" });
-  } catch (error) {
-    console.error("Error en deleteUser:", error);
-    res.status(500).json({ message: "Error en el servidor" });
-  }
-};
-
-/**
  * @desc Salir de todas las sesiones
  * @route POST /api/auth/logout-all
  */
@@ -375,143 +254,10 @@ const logoutAll = async (req, res) => {
   }
 };
 
-/**
- * @desc Envía un enlace para restablecer contraseña via correo electronico
- * @route POST /api/auth/forgot-password
- * @param {string} event.body.email - The JSON stringified request body with email
- * @param {string} process.env.FRONTEND_URL - The frontend URL for the reset link
- * @returns {Promise<Object>} - A response object containing the status code and message
- * @throws {Error} If there is an issue with the API request or JSON parsing
- */
-const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) {
-      return res
-        .status(400)
-        .json({ message: "El correo electrónico es requerido" });
-    }
-
-    const user = await User.findOne({ email });
-    // Always return success message to prevent email enumeration
-    if (!user) {
-      return res.json({
-        message:
-          "Si el correo existe, se ha enviado un enlace para restablecer la contraseña",
-      });
-    }
-
-    // Generate a secure token (alternative to JWT)
-    const resetToken = crypto.randomBytes(32).toString("hex");
-
-    // Encrypt the reset token before saving (optional security step)
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-
-    // Store token & expiration in the user document
-    user.passwordResetToken = hashedToken;
-    user.passwordResetExpires = Date.now() + 15 * 60 * 1000; // 15 min expiry
-    await user.save();
-
-    // Construct reset URL
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-    // Replace `{{reset_url}}` in email template
-    const htmlBody = htmlEmailResetTemplate.replace(/{{reset_url}}/g, resetUrl);
-
-    // Email content
-    const emailOptions = {
-      from: "info@solucionesio.es",
-      to: user.email,
-      subject: "🩸Restablecimiento de contraseña 🅾️",
-      textBody: `Restablecimiento de contraseña\n\nHemos recibido una solicitud para restablecer tu contraseña.\n\nSi no hiciste esta solicitud, puedes ignorar este mensaje.\n\nPara cambiar tu contraseña, haz clic en el siguiente enlace:\n${resetUrl}\n\nEste enlace expirará en 15 minutos.\n\nSi tienes problemas, copia y pega el siguiente enlace en tu navegador:\n${resetUrl}\n\nGracias,\nEl equipo de soporte`,
-      htmlBody,
-    };
-
-    // Send the email
-    const emailResponse = await pmaEmail(emailOptions);
-    if (emailResponse.statusCode >= 400) {
-      // Log and send error response, then return to avoid sending another response later
-      console.log(emailResponse);
-      return res
-        .status(emailResponse.statusCode)
-        .json(JSON.parse(emailResponse.body));
-    }
-
-    res.json({
-      message:
-        "Si el correo existe, se ha enviado un enlace para restablecer la contraseña",
-    });
-  } catch (error) {
-    console.error("Error en forgotPassword:", error);
-    res.status(500).json({ message: "Error en el servidor" });
-  }
-};
-
-/**
- * @desc Restablece la contraseña utilizando un token temporal
- * @route POST /api/auth/reset-password
- * @param {string} req.body.token - The reset token
- * @param {string} req.body.newPassword - The new password
- * @returns {Promise<Object>} - A response object containing the status code and message
- * @throws {Error} If there is an issue with the API request or JSON parsing
- */
-const resetPassword = async (req, res) => {
-  try {
-    const { token, newPassword } = req.body;
-    if (!token || !newPassword) {
-      return res
-        .status(400)
-        .json({ message: "Token y nueva contraseña son requeridos" });
-    }
-    // Password strength check
-    if (newPassword.length < 8) {
-      return res.status(400).json({
-        message: "La nueva contraseña debe tener al menos 8 caracteres",
-      });
-    }
-
-    // Hash the token (since we stored a hashed version in the DB)
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-    // Find the user by reset token and check if it’s still valid
-    const user = await User.findOne({
-      passwordResetToken: hashedToken,
-      passwordResetExpires: { $gt: Date.now() }, // Ensure token is not expired
-    });
-
-    if (!user) {
-      return res.status(400).json({ message: "Token inválido o expirado" });
-    }
-
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update user password and remove reset token fields
-    user.password = hashedPassword;
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save();
-
-    res.json({ message: "Contraseña restablecida con éxito" });
-  } catch (error) {
-    console.error("Error en resetPassword:", error);
-    res.status(500).json({ message: "Error en el servidor" });
-  }
-};
-
 module.exports = {
   login,
   logout,
   register,
-  getUser,
   refreshToken,
-  updateUser,
-  updatePassword,
-  deleteUser,
   logoutAll,
-  forgotPassword,
-  resetPassword,
 };
