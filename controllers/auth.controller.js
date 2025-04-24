@@ -67,7 +67,7 @@ const login = async (req, res) => {
  * @returns {Promise<Object>} - A response object containing the status code and message
  * @throws {Error} If there is an issue with the API request or JSON parsing
  */
-const register = async (req, res) => {
+async function register(req, res) {
   try {
     const { email, password, firstName, lastName } = req.body;
 
@@ -124,12 +124,12 @@ const register = async (req, res) => {
 
     // Send the email
     const emailResponse = await pmaEmail(emailOptions);
-    if (emailResponse.statusCode !== 200) {
+    if (emailResponse.statusCode >= 400) {
+      // Log and send error response, then return to avoid sending another response later
       console.log(emailResponse);
-      res.status(emailResponse.statusCode).json({
-        message:
-          "Hubo un error enviando el correo. Intente de nuevo o contactar con soporte.",
-      });
+      return res
+        .status(emailResponse.statusCode)
+        .json(JSON.parse(emailResponse.body));
     }
 
     // Only return safe user fields
@@ -157,7 +157,7 @@ const register = async (req, res) => {
 
     res.status(500).json({ message: "Error en el servidor" });
   }
-};
+}
 
 /**
  * @desc Obtener los datos del usuario autenticado
@@ -432,12 +432,12 @@ const forgotPassword = async (req, res) => {
 
     // Send the email
     const emailResponse = await pmaEmail(emailOptions);
-    if (emailResponse.statusCode !== 200) {
+    if (emailResponse.statusCode >= 400) {
+      // Log and send error response, then return to avoid sending another response later
       console.log(emailResponse);
-      res.status(emailResponse.statusCode).json({
-        message:
-          "Hubo un error enviando el correo. Intente de nuevo o contactar con soporte.",
-      });
+      return res
+        .status(emailResponse.statusCode)
+        .json(JSON.parse(emailResponse.body));
     }
 
     res.json({
