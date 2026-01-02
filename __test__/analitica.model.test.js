@@ -62,4 +62,28 @@ describe("Analitica Model", () => {
     expect(calculatedResult).toBeDefined();
     expect(calculatedResult.valor).toBe(3.2);
   });
+
+  test('debe agregar el resultado "tg_hdl_ratio" al guardar la analítica cuando se proporcionan Trigliceridos y HDL', async () => {
+    const calculatedResult = savedAnalitica.resultados.find(
+      (r) => r.nombre_normalizado === "tg_hdl_ratio"
+    );
+    expect(calculatedResult).toBeDefined();
+    expect(calculatedResult.valor).toBe(2);
+  });
+
+  test('debe agregar el resultado "homa_ir" al guardar la analítica cuando se proporcionan Glucosa e Insulina', async () => {
+    const calculatedResult = savedAnalitica.resultados.find(
+      (r) => r.nombre_normalizado === "homa_ir"
+    );
+    expect(calculatedResult).toBeDefined();
+    expect(calculatedResult.valor).toBeCloseTo(2.2222, 4);
+  });
+
+  test('debe agregar el resultado "eag" al guardar la analítica cuando se proporciona Hemoglobina A1C', async () => {
+    const calculatedResult = savedAnalitica.resultados.find(
+      (r) => r.nombre_normalizado === "eag"
+    );
+    expect(calculatedResult).toBeDefined();
+    expect(calculatedResult.valor).toBeCloseTo(108.28, 2);
+  });
 });

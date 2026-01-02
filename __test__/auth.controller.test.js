@@ -92,6 +92,7 @@ describe("Auth Controller", () => {
 
     expect(res.body).toHaveProperty("token");
     tokens.token = res.body.token;
+    tokens.refreshToken = res.body.refreshToken;
   });
 
   test("Request password reset", async () => {

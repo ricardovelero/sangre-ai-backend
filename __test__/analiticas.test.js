@@ -65,7 +65,52 @@ beforeAll(async () => {
       owner: TEST_USER_ID,
     };
 
-    await Analitica.create([testDataWithSeries, testDataWithoutSeries]);
+    const testDataGlucosaMetabolica = {
+      paciente: {
+        nombre: "Test paciente",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test data glucosa metabolica",
+      resultados: [
+        {
+          nombre: "Glucosa",
+          valor: 90,
+          unidad: "mg/dL",
+        },
+        {
+          nombre: "Hemoglobina A1C",
+          valor: 5.4,
+          unidad: "%",
+        },
+        {
+          nombre: "Insulina",
+          valor: 10,
+          unidad: "uU/mL",
+        },
+        {
+          nombre: "Glucosa 2h",
+          valor: 120,
+          unidad: "mg/dL",
+        },
+        {
+          nombre: "Triglicéridos",
+          valor: 100,
+          unidad: "mg/dL",
+        },
+        {
+          nombre: "HDL",
+          valor: 50,
+          unidad: "mg/dL",
+        },
+      ],
+      owner: TEST_USER_ID,
+    };
+
+    await Analitica.create([
+      testDataWithSeries,
+      testDataWithoutSeries,
+      testDataGlucosaMetabolica,
+    ]);
     console.log("✅ Test data created successfully");
   } catch (error) {
     console.error("❌ Error creating test data:", error);
@@ -135,13 +180,95 @@ describe("Test API de Analíticas", () => {
   // ✅ 6. Prueba de error interno del servidor (simulando fallo de MongoDB)
   test("Debe devolver 500 si hay un error en la base de datos", async () => {
     // Simular un error en la base de datos
-    jest
+    const aggregateSpy = jest
       .spyOn(mongoose.Model, "aggregate")
       .mockRejectedValue(new Error("Test de Fallo en MongoDB"));
 
     const res = await request(app).get(`/api/analitica/series?tipo=lipidos`);
 
     expect(res.status).toBe(500);
+    aggregateSpy.mockRestore();
+  });
+
+  // ✅ 7. Prueba para la serie glucosa-metabolica
+  test("Debe obtener la serie glucosa-metabolica", async () => {
+    await Analitica.create({
+      paciente: {
+        nombre: "Test paciente",
+      },
+      fecha_toma_muestra: new Date(),
+      markdown: "Test data glucosa metabolica",
+      resultados: [
+        {
+          nombre: "Glucosa",
+          valor: 90,
+          unidad: "mg/dL",
+        },
+        {
+          nombre: "Hemoglobina A1C",
+          valor: 5.4,
+          unidad: "%",
+        },
+        {
+          nombre: "Insulina",
+          valor: 10,
+          unidad: "uU/mL",
+        },
+        {
+          nombre: "Glucosa 2h",
+          valor: 120,
+          unidad: "mg/dL",
+        },
+        {
+          nombre: "Triglicéridos",
+          valor: 100,
+          unidad: "mg/dL",
+        },
+        {
+          nombre: "HDL",
+          valor: 50,
+          unidad: "mg/dL",
+        },
+      ],
+      owner: TEST_USER_ID,
+    });
+
+    const res = await request(app).get(
+      `/api/analitica/series?tipo=glucosa-metabolica`
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.parameters).toEqual([
+      "glucosa",
+      "hemoglobina_glicosilada_a1c",
+      "insulina",
+      "homa_ir",
+      "tg_hdl_ratio",
+      "glucosa_2h",
+      "eag",
+    ]);
+    expect(res.body.results).toBeInstanceOf(Array);
+    expect(res.body.results.length).toBeGreaterThan(0);
+
+    const serieEntry = res.body.results.find(
+      (entry) =>
+        Array.isArray(entry.resultados) &&
+        entry.resultados.some((r) => r.nombre_normalizado === "glucosa")
+    );
+
+    expect(serieEntry).toBeDefined();
+    const nombres = serieEntry.resultados.map((r) => r.nombre_normalizado);
+    expect(nombres).toEqual(
+      expect.arrayContaining([
+        "glucosa",
+        "hemoglobina_glicosilada_a1c",
+        "insulina",
+        "homa_ir",
+        "tg_hdl_ratio",
+        "glucosa_2h",
+        "eag",
+      ])
+    );
   });
 });
 

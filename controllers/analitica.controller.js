@@ -1,11 +1,75 @@
 const db = require("../models");
 const Analitica = db.Analitica;
 const mongoose = require("mongoose");
+const calculateAdditionalResults = require("../lib/calculations");
 const {
   serieBlancaSearchTerms,
   serieRojaSearchTerms,
   serieLipidosSearchTerms,
+  serieGlucosaMetabolicaParameters,
+  serieGlucosaMetabolicaSearchTerms,
 } = require("../lib/seriesSearchTerms");
+
+const glucosaMetabolicaResultMap = {
+  glucosa: "glucosa",
+  "glucosa 2h": "glucosa_2h",
+  "glucosa 2 h": "glucosa_2h",
+  glucosa_2h: "glucosa_2h",
+  "hemoglobina a1c": "hemoglobina_glicosilada_a1c",
+  "hemoglobina glicosilada a1c": "hemoglobina_glicosilada_a1c",
+  hemoglobina_glicosilada_a1c: "hemoglobina_glicosilada_a1c",
+  hba1c: "hemoglobina_glicosilada_a1c",
+  "hb a1c": "hemoglobina_glicosilada_a1c",
+  insulina: "insulina",
+  "homa-ir": "homa_ir",
+  "homa ir": "homa_ir",
+  homa_ir: "homa_ir",
+  "trigliceridos/hdl": "tg_hdl_ratio",
+  tg_hdl_ratio: "tg_hdl_ratio",
+  eag: "eag",
+};
+
+const mergeAdditionalResults = (resultados) => {
+  const baseResults = Array.isArray(resultados) ? resultados : [];
+  const additionalResults = calculateAdditionalResults(baseResults);
+  const mergedResults = [...baseResults];
+
+  for (const result of additionalResults) {
+    const exists = baseResults.some(
+      (item) => item.nombre_normalizado === result.nombre_normalizado
+    );
+    if (!exists) {
+      mergedResults.push(result);
+    }
+  }
+
+  return mergedResults;
+};
+
+const mapGlucosaMetabolicaEntry = (entry) => {
+  const resultados = mergeAdditionalResults(entry.resultados);
+  const mappedResults = new Map();
+
+  for (const result of resultados) {
+    const targetKey = glucosaMetabolicaResultMap[result.nombre_normalizado];
+    if (!targetKey) {
+      continue;
+    }
+    if (!mappedResults.has(targetKey)) {
+      mappedResults.set(targetKey, {
+        ...result,
+        nombre_normalizado: targetKey,
+      });
+    }
+  }
+
+  return {
+    ...entry,
+    resultados: serieGlucosaMetabolicaParameters
+      .map((param) => mappedResults.get(param))
+      .filter(Boolean),
+  };
+};
 
 /**
  * @desc Buscar una analítica por id
@@ -223,6 +287,7 @@ const getSerie = async (req, res, next) => {
 
   let datos;
   let searchTerms;
+  let parameters;
   let matchStage = {
     $match: {
       owner: new mongoose.Types.ObjectId(userId),
@@ -312,6 +377,37 @@ const getSerie = async (req, res, next) => {
           { $sort: { fecha_toma_muestra: 1 } },
         ]);
         break;
+      case "glucosa-metabolica":
+        searchTerms = serieGlucosaMetabolicaSearchTerms;
+        parameters = serieGlucosaMetabolicaParameters;
+        datos = await Analitica.aggregate([
+          matchStage,
+          {
+            $project: {
+              _id: 0,
+              fecha_toma_muestra: 1,
+              resultados: {
+                $filter: {
+                  input: "$resultados",
+                  as: "item",
+                  cond: {
+                    $in: [
+                      "$$item.nombre_normalizado",
+                      serieGlucosaMetabolicaSearchTerms,
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          {
+            $match: {
+              resultados: { $ne: null, $not: { $size: 0 } },
+            },
+          },
+          { $sort: { fecha_toma_muestra: 1 } },
+        ]);
+        break;
 
       default:
         return res.status(400).json({ error: "Tipo de serie no válido" });
@@ -319,8 +415,15 @@ const getSerie = async (req, res, next) => {
 
     // Return empty array if no data found
     datos = datos || [];
+    parameters = parameters || searchTerms;
 
-    res.json({ parameters: searchTerms, results: datos });
+    if (tipo === "glucosa-metabolica") {
+      datos = datos
+        .map((entry) => mapGlucosaMetabolicaEntry(entry))
+        .filter((entry) => entry.resultados.length > 0);
+    }
+
+    res.json({ parameters, results: datos });
   } catch (error) {
     next(error);
   }
