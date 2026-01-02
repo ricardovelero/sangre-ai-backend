@@ -1,3 +1,9 @@
+const buffer = require("buffer");
+if (!buffer.SlowBuffer) {
+  // Shim removed SlowBuffer for dependencies expecting it (Node >= 20).
+  buffer.SlowBuffer = buffer.Buffer;
+}
+
 const express = require("express");
 const cors = require("cors");
 const logger = require("morgan");
