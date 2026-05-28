@@ -1,11 +1,11 @@
-require("dotenv").config();
-const fs = require("fs");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const prompts = require("../lib/prompts");
-const db = require("../models");
+require('dotenv').config();
+const fs = require('fs');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const prompts = require('../lib/prompts');
+const db = require('../models');
 const Analitica = db.Analitica;
-const { normalizeString, toTitleCase } = require("../lib/utils");
-const calculateAdditionalResults = require("../lib/calculations");
+const { normalizeString, toTitleCase } = require('../lib/utils');
+const calculateAdditionalResults = require('../lib/calculations');
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -21,21 +21,21 @@ exports.upload = async (req, res, next) => {
     if (!req.file) {
       return res
         .status(400)
-        .json({ message: "No se recibió un archivo válido." });
+        .json({ message: 'No se recibió un archivo válido.' });
     }
 
     console.log(
-      `Archivo recibido: ${req.file.originalname}, mimetype: ${req.file.mimetype}, tamaño: ${req.file.size} bytes`
+      `Archivo recibido: ${req.file.originalname}, mimetype: ${req.file.mimetype}, tamaño: ${req.file.size} bytes`,
     );
 
     const response = await sendToGoogleAi(req.file.path, req.file.mimetype);
 
     // Eliminar el archivo después de procesarlo
     fs.unlink(req.file.path, (err) => {
-      if (err) console.error("Error eliminando archivo:", err);
+      if (err) console.error('Error eliminando archivo:', err);
     });
 
-    if (response === "El archivo subido no es una analítica de sangre.") {
+    if (response === 'El archivo subido no es una analítica de sangre.') {
       return res.status(422).json({
         mensaje: response,
       });
@@ -49,17 +49,17 @@ exports.upload = async (req, res, next) => {
 
     if (!responseDB) {
       return res.status(500).json({
-        message: "❌ Error al guardar la analítica en la base de datos.",
+        message: '❌ Error al guardar la analítica en la base de datos.',
       });
     }
 
     res.json({
-      message: "Archivo procesado y guardado con éxito.",
+      message: 'Archivo procesado y guardado con éxito.',
       _id: responseDB._id, // Retorna el ID del documento guardado en MongoDB
       text: markdown,
     });
-  } catch (err) {
-    next(err); // Pasar el error al middleware de manejo de errores
+  } catch (error) {
+    return next(error); // Pasar el error al middleware de manejo de errores
   }
 };
 
@@ -67,7 +67,7 @@ exports.upload = async (req, res, next) => {
 function fileToGenerativePart(path, mimeType) {
   return {
     inlineData: {
-      data: Buffer.from(fs.readFileSync(path)).toString("base64"),
+      data: Buffer.from(fs.readFileSync(path)).toString('base64'),
       mimeType,
     },
   };
@@ -79,10 +79,10 @@ const sendToGoogleAi = async (filePath, mimeType) => {
     topP: 0.95,
     topK: 40,
     maxOutputTokens: 16384,
-    responseMimeType: "text/plain",
+    responseMimeType: 'text/plain',
   };
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: 'gemini-2.0-flash',
     systemInstruction: prompts.systemInstruction,
     generationConfig,
   });
@@ -107,28 +107,28 @@ const extractJSON = (responseText) => {
     if (!match) return null;
     return JSON.parse(match[1].trim());
   } catch (error) {
-    console.error("❌ Error al parsear JSON:", error.message);
+    console.error('❌ Error al parsear JSON:', error.message);
     return null;
   }
 };
 
 const extractMarkdown = (responseText) => {
   return responseText
-    .replace(/```json\n[\s\S]*?\n```/, "")
-    .replace(/^```json\n/, "")
+    .replace(/```json\n[\s\S]*?\n```/, '')
+    .replace(/^```json\n/, '')
     .trim();
 };
 
 const normalizarAnalitica = (jsonDataInput) => {
   const jsonData = jsonDataInput || {};
   return {
-    paciente: jsonData.paciente || { nombre: "Desconocido" },
+    paciente: jsonData.paciente || { nombre: 'Desconocido' },
     fecha_toma_muestra: jsonData.fecha_toma_muestra || new Date(),
     fecha_informe: jsonData.fecha_informe || new Date(),
-    laboratorio: jsonData.laboratorio || "No especificado",
-    medico: jsonData.medico || "No especificado",
-    markdown: jsonData.markdown || "Sin informe",
-    resumen: jsonData.resumen || "Sin resumen",
+    laboratorio: jsonData.laboratorio || 'No especificado',
+    medico: jsonData.medico || 'No especificado',
+    markdown: jsonData.markdown || 'Sin informe',
+    resumen: jsonData.resumen || 'Sin resumen',
     resultados: jsonData.resultados || [],
   };
 };
@@ -143,10 +143,10 @@ const guardarAnalitica = async (markdown, jsonData, userId) => {
     });
 
     const analiticaGuardada = await nuevaAnalitica.save();
-    console.log("✅ Analítica guardada en MongoDB.");
+    console.log('✅ Analítica guardada en MongoDB.');
     return analiticaGuardada;
   } catch (error) {
-    console.error("❌ Error al guardar la analítica:", error);
+    console.error('❌ Error al guardar la analítica:', error);
     return null;
   }
 };

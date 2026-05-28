@@ -1,6 +1,6 @@
-const db = require("../models");
+const db = require('../models');
 const Analitica = db.Analitica;
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 // Create a new note
 const createNote = async (req, res, next) => {
@@ -14,7 +14,7 @@ const createNote = async (req, res, next) => {
       owner: userId,
     });
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada" });
+      return res.status(404).json({ message: 'Analitica no encontrada' });
     }
 
     analitica.notas.push({
@@ -25,7 +25,7 @@ const createNote = async (req, res, next) => {
     await analitica.save();
     res.status(201).json(analitica.notas[analitica.notas.length - 1]);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -40,12 +40,12 @@ const getNotes = async (req, res, next) => {
       owner: userId,
     });
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada" });
+      return res.status(404).json({ message: 'Analitica no encontrada' });
     }
 
     res.json(analitica.notas);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -60,17 +60,17 @@ const getNote = async (req, res, next) => {
       owner: userId,
     });
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada" });
+      return res.status(404).json({ message: 'Analitica no encontrada' });
     }
 
     const note = analitica.notas.id(noteId);
     if (!note) {
-      return res.status(404).json({ message: "Nota no encontrada" });
+      return res.status(404).json({ message: 'Nota no encontrada' });
     }
 
     res.json(note);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -86,12 +86,12 @@ const updateNote = async (req, res, next) => {
       owner: userId,
     });
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada" });
+      return res.status(404).json({ message: 'Analitica no encontrada' });
     }
 
     const note = analitica.notas.id(noteId);
     if (!note) {
-      return res.status(404).json({ message: "Nota no encontrada" });
+      return res.status(404).json({ message: 'Nota no encontrada' });
     }
 
     note.content = content;
@@ -99,7 +99,7 @@ const updateNote = async (req, res, next) => {
 
     res.json(note);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -114,15 +114,15 @@ const deleteNote = async (req, res, next) => {
       owner: userId,
     });
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada" });
+      return res.status(404).json({ message: 'Analitica no encontrada' });
     }
 
     analitica.notas.pull(noteId);
     await analitica.save();
 
-    res.json({ message: "Nota eliminada correctamente" });
+    res.json({ message: 'Nota eliminada correctamente' });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

@@ -1,32 +1,32 @@
-const db = require("../models");
+const db = require('../models');
 const Analitica = db.Analitica;
-const mongoose = require("mongoose");
-const calculateAdditionalResults = require("../lib/calculations");
+const mongoose = require('mongoose');
+const calculateAdditionalResults = require('../lib/calculations');
 const {
   serieBlancaSearchTerms,
   serieRojaSearchTerms,
   serieLipidosSearchTerms,
   serieGlucosaMetabolicaParameters,
   serieGlucosaMetabolicaSearchTerms,
-} = require("../lib/seriesSearchTerms");
+} = require('../lib/seriesSearchTerms');
 
 const glucosaMetabolicaResultMap = {
-  glucosa: "glucosa",
-  "glucosa 2h": "glucosa_2h",
-  "glucosa 2 h": "glucosa_2h",
-  glucosa_2h: "glucosa_2h",
-  "hemoglobina a1c": "hemoglobina_glicosilada_a1c",
-  "hemoglobina glicosilada a1c": "hemoglobina_glicosilada_a1c",
-  hemoglobina_glicosilada_a1c: "hemoglobina_glicosilada_a1c",
-  hba1c: "hemoglobina_glicosilada_a1c",
-  "hb a1c": "hemoglobina_glicosilada_a1c",
-  insulina: "insulina",
-  "homa-ir": "homa_ir",
-  "homa ir": "homa_ir",
-  homa_ir: "homa_ir",
-  "trigliceridos/hdl": "tg_hdl_ratio",
-  tg_hdl_ratio: "tg_hdl_ratio",
-  eag: "eag",
+  glucosa: 'glucosa',
+  'glucosa 2h': 'glucosa_2h',
+  'glucosa 2 h': 'glucosa_2h',
+  glucosa_2h: 'glucosa_2h',
+  'hemoglobina a1c': 'hemoglobina_glicosilada_a1c',
+  'hemoglobina glicosilada a1c': 'hemoglobina_glicosilada_a1c',
+  hemoglobina_glicosilada_a1c: 'hemoglobina_glicosilada_a1c',
+  hba1c: 'hemoglobina_glicosilada_a1c',
+  'hb a1c': 'hemoglobina_glicosilada_a1c',
+  insulina: 'insulina',
+  'homa-ir': 'homa_ir',
+  'homa ir': 'homa_ir',
+  homa_ir: 'homa_ir',
+  'trigliceridos/hdl': 'tg_hdl_ratio',
+  tg_hdl_ratio: 'tg_hdl_ratio',
+  eag: 'eag',
 };
 
 const mergeAdditionalResults = (resultados) => {
@@ -36,7 +36,7 @@ const mergeAdditionalResults = (resultados) => {
 
   for (const result of additionalResults) {
     const exists = baseResults.some(
-      (item) => item.nombre_normalizado === result.nombre_normalizado
+      (item) => item.nombre_normalizado === result.nombre_normalizado,
     );
     if (!exists) {
       mergedResults.push(result);
@@ -82,22 +82,22 @@ const getAnalitica = async (req, res, next) => {
   const userId = req.userData.id;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "ID de analítica no válido" });
+    return res.status(400).json({ message: 'ID de analítica no válido' });
   }
 
   try {
     const analitica = await Analitica.findOne({
       _id: id,
       owner: userId,
-    }).populate("tags"); // Fetch associated tags
+    }).populate('tags'); // Fetch associated tags
 
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada." });
+      return res.status(404).json({ message: 'Analitica no encontrada.' });
     }
 
     res.json(analitica);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -108,17 +108,17 @@ const getAnalitica = async (req, res, next) => {
  * @access Privado (autenticación requerida)
  */
 const updateAnalitica = async (req, res, next) => {
-  console.log("Updating analitica");
+  console.log('Updating analitica');
 
   const { id } = req.params;
   const userId = req.userData.id;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "ID de analítica no válido" });
+    return res.status(400).json({ message: 'ID de analítica no válido' });
   }
 
   if (!req.body || Object.keys(req.body).length === 0) {
-    return res.status(400).json({ message: "No se proporcionaron datos" });
+    return res.status(400).json({ message: 'No se proporcionaron datos' });
   }
 
   try {
@@ -128,21 +128,21 @@ const updateAnalitica = async (req, res, next) => {
         $set: {
           laboratorio: req.body.laboratorio,
           medico: req.body.medico,
-          "paciente.nombre": req.body.nombre,
-          "paciente.apellidos": req.body.apellidos,
+          'paciente.nombre': req.body.nombre,
+          'paciente.apellidos': req.body.apellidos,
           fecha_toma_muestra: req.body.fecha,
         },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada." });
+      return res.status(404).json({ message: 'Analitica no encontrada.' });
     }
 
     res.json(analitica);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -155,7 +155,7 @@ const updateAnalitica = async (req, res, next) => {
 const getTodasAnaliticas = async (req, res, next) => {
   const userId = req.userData.id;
   if (!userId) {
-    return res.status(400).json({ error: "Usuario no encontrado" });
+    return res.status(400).json({ error: 'Usuario no encontrado' });
   }
 
   try {
@@ -165,7 +165,7 @@ const getTodasAnaliticas = async (req, res, next) => {
 
     res.json(analiticas ?? []);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -180,7 +180,7 @@ const deleteAnalitica = async (req, res, next) => {
   const userId = req.userData.id;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "ID de analítica no válido" });
+    return res.status(400).json({ message: 'ID de analítica no válido' });
   }
   try {
     const analitica = await Analitica.findOneAndDelete({
@@ -188,11 +188,11 @@ const deleteAnalitica = async (req, res, next) => {
       owner: userId,
     });
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica no encontrada." });
+      return res.status(404).json({ message: 'Analitica no encontrada.' });
     }
-    res.json({ message: "Analitica eliminada correctamente." });
+    res.json({ message: 'Analitica eliminada correctamente.' });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -213,7 +213,7 @@ const getLipidos = async (req, res, next) => {
         },
       },
       {
-        $sort: { "datos_analitica.paciente.fecha_toma_muestra": -1 }, // Ordenar por fecha descendente
+        $sort: { 'datos_analitica.paciente.fecha_toma_muestra': -1 }, // Ordenar por fecha descendente
       },
       {
         $limit: 6, // Obtener los últimos 6 análisis
@@ -221,14 +221,14 @@ const getLipidos = async (req, res, next) => {
       {
         $project: {
           _id: 0,
-          fecha: "$datos_analitica.paciente.fecha_toma_muestra",
+          fecha: '$datos_analitica.paciente.fecha_toma_muestra',
           lipidos: {
             colesterol_total:
-              "$datos_analitica.analitica.bioquimica_clinica.colesterol_total",
-            HDL: "$datos_analitica.analitica.bioquimica_clinica.HDL",
-            LDL: "$datos_analitica.analitica.bioquimica_clinica.LDL",
+              '$datos_analitica.analitica.bioquimica_clinica.colesterol_total',
+            HDL: '$datos_analitica.analitica.bioquimica_clinica.HDL',
+            LDL: '$datos_analitica.analitica.bioquimica_clinica.LDL',
             trigliceridos:
-              "$datos_analitica.analitica.bioquimica_clinica.trigliceridos",
+              '$datos_analitica.analitica.bioquimica_clinica.trigliceridos',
           },
         },
       },
@@ -238,10 +238,10 @@ const getLipidos = async (req, res, next) => {
       data.map((entry) => ({
         fecha: entry.fecha,
         ...entry.lipidos,
-      }))
+      })),
     );
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -282,7 +282,7 @@ const getSerie = async (req, res, next) => {
   if (!tipo) {
     return res
       .status(400)
-      .json({ error: "Debe proporcionar un tipo de serie válido" });
+      .json({ error: 'Debe proporcionar un tipo de serie válido' });
   }
 
   let datos;
@@ -296,7 +296,7 @@ const getSerie = async (req, res, next) => {
 
   try {
     switch (tipo) {
-      case "serie-blanca":
+      case 'serie-blanca':
         searchTerms = serieBlancaSearchTerms;
         datos = await Analitica.aggregate([
           matchStage,
@@ -306,10 +306,10 @@ const getSerie = async (req, res, next) => {
               fecha_toma_muestra: 1,
               resultados: {
                 $filter: {
-                  input: "$resultados",
-                  as: "item",
+                  input: '$resultados',
+                  as: 'item',
                   cond: {
-                    $in: ["$$item.nombre_normalizado", serieBlancaSearchTerms],
+                    $in: ['$$item.nombre_normalizado', serieBlancaSearchTerms],
                   },
                 },
               },
@@ -323,7 +323,7 @@ const getSerie = async (req, res, next) => {
           { $sort: { fecha_toma_muestra: 1 } },
         ]);
         break;
-      case "serie-roja":
+      case 'serie-roja':
         searchTerms = serieRojaSearchTerms;
         datos = await Analitica.aggregate([
           matchStage,
@@ -333,10 +333,10 @@ const getSerie = async (req, res, next) => {
               fecha_toma_muestra: 1,
               resultados: {
                 $filter: {
-                  input: "$resultados",
-                  as: "item",
+                  input: '$resultados',
+                  as: 'item',
                   cond: {
-                    $in: ["$$item.nombre_normalizado", serieRojaSearchTerms],
+                    $in: ['$$item.nombre_normalizado', serieRojaSearchTerms],
                   },
                 },
               },
@@ -350,7 +350,7 @@ const getSerie = async (req, res, next) => {
           { $sort: { fecha_toma_muestra: 1 } },
         ]);
         break;
-      case "lipidos":
+      case 'lipidos':
         searchTerms = serieLipidosSearchTerms;
         datos = await Analitica.aggregate([
           matchStage,
@@ -360,10 +360,10 @@ const getSerie = async (req, res, next) => {
               fecha_toma_muestra: 1,
               resultados: {
                 $filter: {
-                  input: "$resultados",
-                  as: "item",
+                  input: '$resultados',
+                  as: 'item',
                   cond: {
-                    $in: ["$$item.nombre_normalizado", serieLipidosSearchTerms],
+                    $in: ['$$item.nombre_normalizado', serieLipidosSearchTerms],
                   },
                 },
               },
@@ -377,7 +377,7 @@ const getSerie = async (req, res, next) => {
           { $sort: { fecha_toma_muestra: 1 } },
         ]);
         break;
-      case "glucosa-metabolica":
+      case 'glucosa-metabolica':
         searchTerms = serieGlucosaMetabolicaSearchTerms;
         parameters = serieGlucosaMetabolicaParameters;
         datos = await Analitica.aggregate([
@@ -388,11 +388,11 @@ const getSerie = async (req, res, next) => {
               fecha_toma_muestra: 1,
               resultados: {
                 $filter: {
-                  input: "$resultados",
-                  as: "item",
+                  input: '$resultados',
+                  as: 'item',
                   cond: {
                     $in: [
-                      "$$item.nombre_normalizado",
+                      '$$item.nombre_normalizado',
                       serieGlucosaMetabolicaSearchTerms,
                     ],
                   },
@@ -410,14 +410,14 @@ const getSerie = async (req, res, next) => {
         break;
 
       default:
-        return res.status(400).json({ error: "Tipo de serie no válido" });
+        return res.status(400).json({ error: 'Tipo de serie no válido' });
     }
 
     // Return empty array if no data found
     datos = datos || [];
     parameters = parameters || searchTerms;
 
-    if (tipo === "glucosa-metabolica") {
+    if (tipo === 'glucosa-metabolica') {
       datos = datos
         .map((entry) => mapGlucosaMetabolicaEntry(entry))
         .filter((entry) => entry.resultados.length > 0);
@@ -425,7 +425,7 @@ const getSerie = async (req, res, next) => {
 
     res.json({ parameters, results: datos });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

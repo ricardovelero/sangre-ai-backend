@@ -1,6 +1,6 @@
 // controllers/tags.controller.js
-const Tag = require("../models/tag.model");
-const Analitica = require("../models/analitica.model");
+const Tag = require('../models/tag.model');
+const Analitica = require('../models/analitica.model');
 
 // Create a new tag or add an existing one to an Analitica
 const createOrAddTag = async (req, res, next) => {
@@ -19,21 +19,21 @@ const createOrAddTag = async (req, res, next) => {
 
     const analitica = await Analitica.findById(analiticaId);
     if (!analitica) {
-      return res.status(404).json({ message: "Analitica not found" });
+      return res.status(404).json({ message: 'Analitica not found' });
     }
 
     if (analitica.tags.includes(tag._id)) {
       return res
         .status(201)
-        .json({ message: "Etiqueta ya incluida en analitica", tag });
+        .json({ message: 'Etiqueta ya incluida en analitica', tag });
     }
 
     analitica.tags.push(tag._id);
 
     await analitica.save();
-    res.status(201).json({ message: "Etiqueta agregada con éxito.", tag });
+    res.status(201).json({ message: 'Etiqueta agregada con éxito.', tag });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -47,7 +47,7 @@ const getTags = async (req, res) => {
     res.json(tags);
   } catch (error) {
     res.status(500).json({
-      message: "Error al obtener las etiquetas",
+      message: 'Error al obtener las etiquetas',
       error: error.message,
     });
   }
@@ -66,7 +66,7 @@ const getTag = async (req, res) => {
 
     if (!tag) {
       return res.status(404).json({
-        message: "Etiqueta no encontrada",
+        message: 'Etiqueta no encontrada',
       });
     }
 
@@ -74,7 +74,7 @@ const getTag = async (req, res) => {
     const analiticas = await Analitica.find({
       tags: tagId,
       owner: userId,
-    }).select("_id fecha_toma_muestra laboratorio"); // Select only necessary fields
+    }).select('_id fecha_toma_muestra laboratorio'); // Select only necessary fields
 
     res.json({
       tag,
@@ -82,7 +82,7 @@ const getTag = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error al obtener la etiqueta",
+      message: 'Error al obtener la etiqueta',
       error: error.message,
     });
   }
@@ -101,7 +101,7 @@ const deleteTag = async (req, res) => {
 
     if (!tag) {
       return res.status(404).json({
-        message: "Etiqueta no encontrada",
+        message: 'Etiqueta no encontrada',
       });
     }
 
@@ -112,11 +112,11 @@ const deleteTag = async (req, res) => {
     await Tag.findByIdAndDelete(tagId);
 
     res.json({
-      message: "Etiqueta eliminada correctamente",
+      message: 'Etiqueta eliminada correctamente',
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error al eliminar la etiqueta",
+      message: 'Error al eliminar la etiqueta',
       error: error.message,
     });
   }
@@ -135,7 +135,7 @@ const removeTag = async (req, res) => {
 
     if (!tag) {
       return res.status(404).json({
-        message: "Etiqueta no encontrada",
+        message: 'Etiqueta no encontrada',
       });
     }
 
@@ -143,11 +143,11 @@ const removeTag = async (req, res) => {
     await Analitica.updateOne({ _id: analiticaId }, { $pull: { tags: tagId } });
 
     res.json({
-      message: "Etiqueta eliminada de Analitica.",
+      message: 'Etiqueta eliminada de Analitica.',
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error al eliminar la etiqueta",
+      message: 'Error al eliminar la etiqueta',
       error: error.message,
     });
   }
