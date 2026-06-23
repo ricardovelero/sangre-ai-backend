@@ -17,7 +17,7 @@ const createOrAddTag = async (req, res, next) => {
       });
     }
 
-    const analitica = await Analitica.findById(analiticaId);
+    const analitica = await Analitica.findOne({ _id: analiticaId, owner: userId });
     if (!analitica) {
       return res.status(404).json({ message: 'Analitica not found' });
     }
