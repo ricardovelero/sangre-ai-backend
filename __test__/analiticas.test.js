@@ -118,7 +118,11 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await Analitica.deleteMany({ owner: TEST_USER_ID });
+  // Guard: this top-level afterAll can run after jest.setup.js has already
+  // disconnected the shared in-memory connection. Skip cleanup if so.
+  if (mongoose.connection.readyState === 1) {
+    await Analitica.deleteMany({ owner: TEST_USER_ID });
+  }
 });
 
 describe("Test API de Analíticas", () => {
