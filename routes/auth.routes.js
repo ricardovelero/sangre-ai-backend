@@ -17,16 +17,17 @@ const {
   resetPassword,
 } = require("../controllers/password.controller");
 const verifyToken = require("../middleware/auth");
+const { loginLimiter, forgotPasswordLimiter } = require("../middleware/rateLimiter");
 
 var router = require("express").Router();
 
 router.post("/register", register);
-router.post("/login", login);
+router.post("/login", loginLimiter, login);
 router.post("/logout", logout);
-router.post("/logout-all", logoutAll);
+router.post("/logout-all", verifyToken, logoutAll);
 router.post("/refresh", refreshToken);
 
-router.post("/forgot-password", forgotPassword);
+router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPassword);
 router.put("/user/password", verifyToken, updatePassword);
 
