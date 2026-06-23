@@ -16,6 +16,7 @@ docker push gcr.io/sangre-ai/sangre-ai-backend
 
 # Desplegar en Cloud Run
 gcloud run deploy sangre-ai-backend \
+  --project sangre-ai \
   --image gcr.io/sangre-ai/sangre-ai-backend \
   --platform managed \
   --region europe-west1 \
