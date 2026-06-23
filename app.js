@@ -14,7 +14,11 @@ const errorHandler = require("./middleware/errorHandler"); // Manejo de errores
 const app = express();
 
 // Configuración de CORS
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Seguridad con Helmet (protege contra ciertas vulnerabilidades)
 app.use(helmet());
