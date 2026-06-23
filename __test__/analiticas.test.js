@@ -119,7 +119,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await Analitica.deleteMany({ owner: TEST_USER_ID });
-  await mongoose.connection.close();
 });
 
 describe("Test API de Analíticas", () => {
