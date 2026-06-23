@@ -1,6 +1,4 @@
 const request = require("supertest");
-const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
 const app = require("../app");
 const User = require("../models/auth.model");
 
@@ -20,17 +18,13 @@ describe("Auth Controller", () => {
     lastName: "User",
   };
   let tokens = {};
-  let mongoServer;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
     await User.deleteMany({});
   });
 
   afterAll(async () => {
     await User.deleteMany({});
-    await mongoose.disconnect();
-    await mongoServer.stop();
   });
 
   test("Register a new user", async () => {

@@ -1,6 +1,5 @@
 const request = require("supertest");
 const http = require("http");
-const mongoose = require("mongoose");
 const app = require("../app");
 
 describe("Servidor Express", () => {
@@ -18,8 +17,7 @@ describe("Servidor Express", () => {
   });
 
   afterAll(async () => {
-    // Cierra el servidor y la conexión a la BD para limpiar los handles abiertos
+    // Cierra el servidor; jest.setup.js gestiona el cierre de la conexión a la BD.
     server.close();
-    await mongoose.connection.close();
   });
 });

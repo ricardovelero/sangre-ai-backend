@@ -35,7 +35,6 @@ describe("Tags API Endpoints", () => {
   afterAll(async () => {
     await Tag.deleteMany({ owner: TEST_USER_ID });
     await Analitica.deleteMany({ owner: TEST_USER_ID });
-    await mongoose.connection.close();
   });
 
   // Test creating a tag

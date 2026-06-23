@@ -1,24 +1,9 @@
-const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
 const Analitica = require("../models/analitica.model");
 const { getMockAnalitica } = require("../__mocks__/analitica.mock");
 
 describe("Analitica Model", () => {
-  let mongoServer;
   let testAnalitica;
   let savedAnalitica;
-
-  beforeAll(async () => {
-    // Inicializa una instancia de MongoDB en memoria
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    await mongoose.connect(uri);
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-  });
 
   afterEach(async () => {
     // Limpia la colección para aislar cada test

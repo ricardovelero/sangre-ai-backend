@@ -35,7 +35,6 @@ describe("Notes API Endpoints", () => {
   // Clean up after tests
   afterAll(async () => {
     await Analitica.deleteMany({ owner: TEST_USER_ID });
-    await mongoose.connection.close();
   });
 
   // Test creating a note
