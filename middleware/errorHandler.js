@@ -17,9 +17,17 @@ module.exports = (err, req, res, next) => {
 
   // Si el error tiene un código de estado, úsalo; de lo contrario, usa 500
   const statusCode = err.status || 500;
+  const isDev = process.env.NODE_ENV === "development";
+
+  // Los errores de cliente (4xx) suelen llevar un mensaje intencional y seguro.
+  // Para errores de servidor (5xx) ocultamos el mensaje interno en producción
+  // para no filtrar detalles de implementación.
+  const exposeMessage = isDev || statusCode < 500;
 
   res.status(statusCode).json({
-    message: err.message || "Error interno del servidor.",
-    error: process.env.NODE_ENV === "development" ? err.stack : undefined, // Solo mostrar stack en desarrollo
+    message: exposeMessage
+      ? err.message || "Error interno del servidor."
+      : "Error interno del servidor.",
+    error: isDev ? err.stack : undefined, // Solo mostrar stack en desarrollo
   });
 };
