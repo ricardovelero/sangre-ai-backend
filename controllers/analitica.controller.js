@@ -155,7 +155,7 @@ const updateAnalitica = async (req, res, next) => {
 const getTodasAnaliticas = async (req, res, next) => {
   const userId = req.userData.id;
   if (!userId) {
-    return res.status(400).json({ error: 'Usuario no encontrado' });
+    return res.status(400).json({ message: 'Usuario no encontrado' });
   }
 
   try {
@@ -282,7 +282,7 @@ const getSerie = async (req, res, next) => {
   if (!tipo) {
     return res
       .status(400)
-      .json({ error: 'Debe proporcionar un tipo de serie válido' });
+      .json({ message: 'Debe proporcionar un tipo de serie válido' });
   }
 
   let datos;
@@ -410,7 +410,7 @@ const getSerie = async (req, res, next) => {
         break;
 
       default:
-        return res.status(400).json({ error: 'Tipo de serie no válido' });
+        return res.status(400).json({ message: 'Tipo de serie no válido' });
     }
 
     // Return empty array if no data found

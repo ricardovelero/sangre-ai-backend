@@ -7,13 +7,8 @@ const verifyToken = (req, res, next) => {
     .replace(/^\s+|\s+$/gi, "");
 
   try {
-    if (!token) {
-      return res.status(403).json({
-        statusCode: 403,
-        message: "A token is required for authentication",
-      });
-    }
-    /* Verifying the token. */
+    /* Verifying the token. A missing header yields an invalid token string,
+       so jwt.verify throws and we respond 401 below. */
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
     req.userData = decoded;
   } catch (err) {

@@ -148,7 +148,7 @@ describe("Test API de Analíticas", () => {
     );
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe("Tipo de serie no válido");
+    expect(res.body.message).toBe("Tipo de serie no válido");
   });
 
   // ✅ 3. Prueba cuando no hay datos en la base de datos
@@ -177,7 +177,7 @@ describe("Test API de Analíticas", () => {
     const res = await request(app).get(`/api/analitica/series`);
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe("Debe proporcionar un tipo de serie válido");
+    expect(res.body.message).toBe("Debe proporcionar un tipo de serie válido");
   });
 
   // ✅ 6. Prueba de error interno del servidor (simulando fallo de MongoDB)

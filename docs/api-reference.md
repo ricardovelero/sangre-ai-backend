@@ -126,8 +126,7 @@ request shape, success response, and error responses (status + body).
 - **400:** `{ "message": "No se cargó un archivo." }` / `{ "message": "No se recibió un archivo válido." }`
 - **400:** `{ "message": "Formato no soportado. Solo se aceptan PDFs e imágenes JPG, PNG, Webp, HEIC, HEIF." }`
 - **400 (file too big):** `{ "message": "El archivo es demasiado grande. Máximo permitido: 5 MB." }`
-- **422:** `{ "mensaje": "El archivo subido no es una analítica de sangre." }`
-  ⚠️ *key is `mensaje`, not `message`.*
+- **422:** `{ "message": "El archivo subido no es una analítica de sangre." }`
 - **429** · **500:** `{ "message": "❌ Error al guardar la analítica en la base de datos." }` / `{ "message": "Error procesando el archivo." }`
 
 ---
@@ -136,13 +135,13 @@ request shape, success response, and error responses (status + body).
 
 ### GET `/`
 - **Auth required.** **200:** array of analítica objects (newest first), or `[]`.
-- **400:** `{ "error": "Usuario no encontrado" }`
+- **400:** `{ "message": "Usuario no encontrado" }`
 
 ### GET `/series?tipo=<tipo>`
 - **Auth required.** `tipo` ∈ `serie-blanca | serie-roja | lipidos | glucosa-metabolica`.
 - **200:** `{ "parameters": [...], "results": [...] }`
-- **400:** `{ "error": "Debe proporcionar un tipo de serie válido" }` / `{ "error": "Tipo de serie no válido" }`
-- **500:** `{ "error": "..." }`
+- **400:** `{ "message": "Debe proporcionar un tipo de serie válido" }` / `{ "message": "Tipo de serie no válido" }`
+- **500** (standard server error shape)
 
 ### GET `/lipidos`
 - **Auth required.** **200:** array of `{ fecha, colesterol_total, HDL, LDL, trigliceridos }`.
@@ -240,12 +239,6 @@ special character. Per-rule messages (Spanish):
 
 ## Known inconsistencies
 
-Things the frontend should be aware of (candidates for a future cleanup PR):
-
-1. **`422` upload response uses the key `mensaje`**, not `message`, unlike every
-   other endpoint.
-2. **Some list/error responses use `error`** (e.g. `GET /analitica`,
-   `GET /analitica/series`) **instead of `message`.**
-3. **Missing-token returns `401`**, not `403` (the intended `403` branch is
-   unreachable). Treated as intentional — a missing token is an authentication
-   failure, so `401` is appropriate.
+None outstanding. Error responses now use `message` consistently across every
+endpoint (the previous `mensaje` / `error` key variants were unified), and a
+missing or invalid token returns `401` everywhere.
