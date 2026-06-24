@@ -1,13 +1,11 @@
 const { z } = require("zod");
+const { passwordSchema } = require("../utils/passwordStrength");
 
-// Las contraseñas solo se validan aquí en cuanto a tipo/presencia.
-// La fortaleza (longitud, complejidad) la sigue comprobando
-// checkPasswordStrength en los controladores, para no duplicar reglas.
 const nonEmptyString = z.string().min(1);
 
 const registerSchema = z.object({
   email: z.email(),
-  password: nonEmptyString,
+  password: passwordSchema,
   firstName: nonEmptyString.optional(),
   lastName: nonEmptyString.optional(),
 });
@@ -31,12 +29,12 @@ const forgotPasswordSchema = z.object({
 
 const resetPasswordSchema = z.object({
   token: nonEmptyString,
-  newPassword: nonEmptyString,
+  newPassword: passwordSchema,
 });
 
 const updatePasswordSchema = z.object({
   currentPassword: nonEmptyString,
-  newPassword: nonEmptyString,
+  newPassword: passwordSchema,
 });
 
 const updateUserSchema = z.object({

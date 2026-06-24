@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/auth.model");
 const { pmaEmail } = require("../utils/pmaEmail");
 const htmlEmailRegistrationTemplate = require("../utils/htmlEmailRegistrationTemplate");
-const { checkPasswordStrength } = require("../utils/passwordStrength");
 
 /**
  * @desc Inicia sesión y devuelve token + refreshToken
@@ -75,11 +74,6 @@ async function register(req, res) {
       return res
         .status(400)
         .json({ message: "Email y contraseña son requeridos" });
-    }
-    // Password strength check
-    const strength = checkPasswordStrength(password);
-    if (!strength.valid) {
-      return res.status(400).json({ message: strength.message });
     }
 
     // Hash password

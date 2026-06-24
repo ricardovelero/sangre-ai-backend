@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { pmaEmail } = require("../utils/pmaEmail");
 const htmlEmailResetTemplate = require("../utils/htmlEmailResetTemplate");
-const { checkPasswordStrength } = require("../utils/passwordStrength");
 
 /**
  * @desc Cambia contraseña de usuario
@@ -20,11 +19,6 @@ const updatePassword = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Ambas contraseñas son requeridas" });
-    }
-    // Password strength check
-    const strength = checkPasswordStrength(newPassword);
-    if (!strength.valid) {
-      return res.status(400).json({ message: strength.message });
     }
 
     // Find user
@@ -142,11 +136,6 @@ const resetPassword = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Token y nueva contraseña son requeridos" });
-    }
-    // Password strength check
-    const strength = checkPasswordStrength(newPassword);
-    if (!strength.valid) {
-      return res.status(400).json({ message: strength.message });
     }
 
     // Hash the token (since we stored a hashed version in the DB)
