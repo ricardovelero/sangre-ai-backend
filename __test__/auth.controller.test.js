@@ -163,4 +163,14 @@ describe("Auth input validation (Zod)", () => {
 
     expect(res.body.message).toBe("Datos inválidos");
   });
+
+  test("rejects register with a weak password (strength enforced at the schema)", async () => {
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ email: "weakpass@example.com", password: "weak" })
+      .expect(400);
+
+    expect(res.body.message).toBe("Datos inválidos");
+    expect(res.body.errors.some((e) => e.field === "password")).toBe(true);
+  });
 });
