@@ -18,21 +18,42 @@ const {
 } = require("../controllers/password.controller");
 const verifyToken = require("../middleware/auth");
 const { loginLimiter, forgotPasswordLimiter } = require("../middleware/rateLimiter");
+const validate = require("../middleware/validate");
+const {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+  logoutSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  updatePasswordSchema,
+  updateUserSchema,
+} = require("../schemas/auth.schema");
 
 var router = require("express").Router();
 
-router.post("/register", register);
-router.post("/login", loginLimiter, login);
-router.post("/logout", logout);
+router.post("/register", validate(registerSchema), register);
+router.post("/login", loginLimiter, validate(loginSchema), login);
+router.post("/logout", validate(logoutSchema), logout);
 router.post("/logout-all", verifyToken, logoutAll);
-router.post("/refresh", refreshToken);
+router.post("/refresh", validate(refreshTokenSchema), refreshToken);
 
-router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
-router.post("/reset-password", resetPassword);
-router.put("/user/password", verifyToken, updatePassword);
+router.post(
+  "/forgot-password",
+  forgotPasswordLimiter,
+  validate(forgotPasswordSchema),
+  forgotPassword
+);
+router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
+router.put(
+  "/user/password",
+  verifyToken,
+  validate(updatePasswordSchema),
+  updatePassword
+);
 
 router.get("/user", verifyToken, getUser);
-router.put("/user", verifyToken, updateUser);
+router.put("/user", verifyToken, validate(updateUserSchema), updateUser);
 router.delete("/user", verifyToken, deleteUser);
 
 module.exports = router;
