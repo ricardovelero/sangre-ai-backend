@@ -191,4 +191,25 @@ describe("Tags API Endpoints", () => {
       expect(res.body).toHaveProperty("message", "Etiqueta no encontrada");
     });
   });
+
+  // Input validation (Zod)
+  describe("POST /api/tags validation", () => {
+    test("rejects a missing name", async () => {
+      const res = await request(app)
+        .post("/api/tags")
+        .send({ analiticaId: new mongoose.Types.ObjectId().toString() });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe("Datos inválidos");
+    });
+
+    test("rejects a malformed analiticaId (not an ObjectId)", async () => {
+      const res = await request(app)
+        .post("/api/tags")
+        .send({ name: "Tag", analiticaId: "not-an-object-id" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errors.some((e) => e.field === "analiticaId")).toBe(true);
+    });
+  });
 });
