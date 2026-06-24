@@ -37,7 +37,7 @@ exports.upload = async (req, res, next) => {
 
     if (response === 'El archivo subido no es una analítica de sangre.') {
       return res.status(422).json({
-        mensaje: response,
+        message: response,
       });
     }
 
