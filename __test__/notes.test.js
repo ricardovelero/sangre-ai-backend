@@ -180,4 +180,25 @@ describe("Notes API Endpoints", () => {
       expect(deletedNote).toBeNull();
     });
   });
+
+  // Input validation (Zod)
+  describe("POST /api/analitica/:analiticaId/notes validation", () => {
+    test("rejects a note with empty content", async () => {
+      const res = await request(app)
+        .post(`/api/analitica/${testAnaliticaId}/notes`)
+        .send({ content: "" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe("Datos inválidos");
+    });
+
+    test("rejects a note with non-string content", async () => {
+      const res = await request(app)
+        .post(`/api/analitica/${testAnaliticaId}/notes`)
+        .send({ content: { $ne: null } });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe("Datos inválidos");
+    });
+  });
 });
