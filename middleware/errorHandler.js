@@ -4,7 +4,7 @@ module.exports = (err, req, res, next) => {
   // Manejar errores específicos de Multer
   if (err.code === "LIMIT_FILE_SIZE") {
     return res.status(400).json({
-      message: "El archivo es demasiado grande. Máximo permitido: 1 MB.",
+      message: "El archivo es demasiado grande. Máximo permitido: 5 MB.",
     });
   }
 
