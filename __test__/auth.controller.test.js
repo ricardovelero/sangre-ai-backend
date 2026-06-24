@@ -123,3 +123,44 @@ describe("Auth Controller", () => {
     expect(res.body.message).toMatch(/Cuenta eliminada exitosamente/);
   });
 });
+
+describe("Auth input validation (Zod)", () => {
+  test("rejects a non-string email (NoSQL injection attempt) on login", async () => {
+    const res = await request(app)
+      .post("/api/auth/login")
+      .send({ email: { $gt: "" }, password: "whatever" })
+      .expect(400);
+
+    expect(res.body.message).toBe("Datos inválidos");
+    expect(Array.isArray(res.body.errors)).toBe(true);
+  });
+
+  test("rejects register with a malformed email", async () => {
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ email: "not-an-email", password: "TestPass123!" })
+      .expect(400);
+
+    expect(res.body.message).toBe("Datos inválidos");
+    expect(res.body.errors.some((e) => e.field === "email")).toBe(true);
+  });
+
+  test("rejects register with a missing password", async () => {
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ email: "valid@example.com" })
+      .expect(400);
+
+    expect(res.body.message).toBe("Datos inválidos");
+    expect(res.body.errors.some((e) => e.field === "password")).toBe(true);
+  });
+
+  test("rejects refresh with a non-string refreshToken", async () => {
+    const res = await request(app)
+      .post("/api/auth/refresh")
+      .send({ refreshToken: { $ne: null } })
+      .expect(400);
+
+    expect(res.body.message).toBe("Datos inválidos");
+  });
+});
