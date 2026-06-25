@@ -8,6 +8,7 @@ const { normalizeString, toTitleCase } = require('../lib/utils');
 const calculateAdditionalResults = require('../lib/calculations');
 
 const API_KEY = process.env.GEMINI_API_KEY;
+const MODEL = process.env.GEMINI_MODEL;
 
 /**
  * @desc Subir un archivo PDF, enviarlo a Google AI para procesarlo, y guardar en DB
@@ -82,7 +83,7 @@ const sendToGoogleAi = async (filePath, mimeType) => {
     responseMimeType: 'text/plain',
   };
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
+    model: MODEL,
     systemInstruction: prompts.systemInstruction,
     generationConfig,
   });
