@@ -21,4 +21,4 @@ gcloud run deploy sangre-ai-backend \
   --platform managed \
   --region europe-west1 \
   --allow-unauthenticated \
-  --set-env-vars NODE_ENV=production,TOKEN_KEY=$TOKEN_KEY,REFRESH_TOKEN_KEY=$REFRESH_TOKEN_KEY,GEMINI_API_KEY=$GEMINI_API_KEY,MONGO_URI=$MONGO_URI,EMAILS_SECRET=$EMAILS_SECRET,FRONTEND_URL=https://sangre-ai-react.vercel.app
+  --set-env-vars NODE_ENV=production,TOKEN_KEY=$TOKEN_KEY,REFRESH_TOKEN_KEY=$REFRESH_TOKEN_KEY,GEMINI_API_KEY=$GEMINI_API_KEY,GEMINI_MODEL=$GEMINI_MODEL,MONGO_URI=$MONGO_URI,EMAILS_SECRET=$EMAILS_SECRET,FRONTEND_URL=https://sangre-ai-react.vercel.app
